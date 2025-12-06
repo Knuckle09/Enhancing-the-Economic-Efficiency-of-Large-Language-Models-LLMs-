@@ -3,15 +3,12 @@ services:
     name: llm-efficiency-backend
     env: python
     plan: free
+    rootDir: Backend
     buildCommand: pip install -r requirements.txt
     startCommand: python api.py
+
     envVars:
       - key: GEMINI_API_KEY
         sync: false
       - key: MISTRAL_API_KEY
         sync: false
-  - type
-     env: python
-    rootDir: Backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: python api.py
