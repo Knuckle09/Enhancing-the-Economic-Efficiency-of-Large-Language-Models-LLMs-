@@ -28,6 +28,11 @@ build/
 Thumbs.db
 .DS_Store
 
-# IDE
+# Local ignore rules
+node_modules/
+dist/
+.env
+
+# Remote ignore rules
+*.log
 .vscode/
-.idea/
