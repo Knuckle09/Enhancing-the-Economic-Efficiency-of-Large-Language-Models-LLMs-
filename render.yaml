@@ -5,7 +5,8 @@ services:
     plan: free
     rootDir: Backend
     buildCommand: pip install -r requirements.txt
-    startCommand: python api.py
+    startCommand: python production/api.py
+
     envVars:
       - key: GEMINI_API_KEY
         sync: false
