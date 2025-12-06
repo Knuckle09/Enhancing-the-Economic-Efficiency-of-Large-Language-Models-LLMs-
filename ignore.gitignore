@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+.venv/
+*.egg-info/
+*.log
+
+# HuggingFace
+.cache/
+hub/
+
+# Model weights
+*.safetensors
+models/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Vite.js
+.vite/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
