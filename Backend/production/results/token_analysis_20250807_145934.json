@@ -1,0 +1,704 @@
+{
+  "timestamp": "2025-08-07T14:59:34.361274",
+  "test_summary": {
+    "original_tokens_count": 98,
+    "optimized_tokens_count": 77,
+    "token_reduction_percent": 21.428571428571427,
+    "response_similarity": 0.7772491574287415,
+    "success": false
+  },
+  "original_text": "A polynomial function has one turning point where it reaches a local maximum and another turning point where it reaches a local minimum. The graph of the function passes through the point where the input is zero and the output is four. The rate of change of the function is zero at inputs of one and three. Determine the general shape of the graph, the intervals where the function increases or decreases, and describe how the function behaves as the input becomes very large or very small.",
+  "optimized_text": "polynomial function has one turning point where it reaches local maximum and another turning point where it reaches local minimum . graph of function passes through point where input zero and output four . rate of change of function zero at inputs of one and three . determine general shape of graph , intervals where function increases or decreases , and describe how function behaves as input becomes very large or very small .",
+  "original_token_surprisal": [
+    {
+      "token": "Ġpo",
+      "surprisal": 10.651786804199219
+    },
+    {
+      "token": "lyn",
+      "surprisal": 3.8673512935638428
+    },
+    {
+      "token": "omial",
+      "surprisal": 0.05422953516244888
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 4.266895294189453
+    },
+    {
+      "token": "Ġhas",
+      "surprisal": 4.864633560180664
+    },
+    {
+      "token": "Ġone",
+      "surprisal": 4.938810348510742
+    },
+    {
+      "token": "Ġturning",
+      "surprisal": 12.422514915466309
+    },
+    {
+      "token": "Ġpoint",
+      "surprisal": 1.246090054512024
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 4.517648696899414
+    },
+    {
+      "token": "Ġit",
+      "surprisal": 1.436232328414917
+    },
+    {
+      "token": "Ġreaches",
+      "surprisal": 6.305554389953613
+    },
+    {
+      "token": "Ġa",
+      "surprisal": 1.7147992849349976
+    },
+    {
+      "token": "Ġlocal",
+      "surprisal": 8.043532371520996
+    },
+    {
+      "token": "Ġmaximum",
+      "surprisal": 3.7140517234802246
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 2.2734766006469727
+    },
+    {
+      "token": "Ġanother",
+      "surprisal": 2.6609082221984863
+    },
+    {
+      "token": "Ġturning",
+      "surprisal": 1.9973483085632324
+    },
+    {
+      "token": "Ġpoint",
+      "surprisal": 0.00832526758313179
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 0.1455712467432022
+    },
+    {
+      "token": "Ġit",
+      "surprisal": 0.14381372928619385
+    },
+    {
+      "token": "Ġreaches",
+      "surprisal": 1.0078163146972656
+    },
+    {
+      "token": "Ġa",
+      "surprisal": 0.5270435810089111
+    },
+    {
+      "token": "Ġlocal",
+      "surprisal": 2.0372538566589355
+    },
+    {
+      "token": "Ġminimum",
+      "surprisal": 0.3003104031085968
+    },
+    {
+      "token": ".",
+      "surprisal": 0.2761566638946533
+    },
+    {
+      "token": "ĠThe",
+      "surprisal": 1.785381555557251
+    },
+    {
+      "token": "Ġgraph",
+      "surprisal": 7.128201007843018
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 2.862744092941284
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 1.1715688705444336
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 3.9894659519195557
+    },
+    {
+      "token": "Ġpasses",
+      "surprisal": 8.688780784606934
+    },
+    {
+      "token": "Ġthrough",
+      "surprisal": 1.102160930633545
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 1.497087836265564
+    },
+    {
+      "token": "Ġpoint",
+      "surprisal": 4.202246189117432
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 3.515869617462158
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 0.6830208897590637
+    },
+    {
+      "token": "Ġinput",
+      "surprisal": 7.119202136993408
+    },
+    {
+      "token": "Ġis",
+      "surprisal": 1.5892832279205322
+    },
+    {
+      "token": "Ġzero",
+      "surprisal": 3.190176010131836
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 1.0105457305908203
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 0.39849182963371277
+    },
+    {
+      "token": "Ġoutput",
+      "surprisal": 0.7380070686340332
+    },
+    {
+      "token": "Ġis",
+      "surprisal": 0.22507630288600922
+    },
+    {
+      "token": "Ġfour",
+      "surprisal": 6.546703815460205
+    },
+    {
+      "token": ".",
+      "surprisal": 0.8794468641281128
+    },
+    {
+      "token": "ĠThe",
+      "surprisal": 1.4890307188034058
+    },
+    {
+      "token": "Ġrate",
+      "surprisal": 7.566342830657959
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 0.7025504112243652
+    },
+    {
+      "token": "Ġchange",
+      "surprisal": 1.2725523710250854
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 1.384568691253662
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 0.495954692363739
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 2.4827585220336914
+    },
+    {
+      "token": "Ġis",
+      "surprisal": 0.7666543126106262
+    },
+    {
+      "token": "Ġzero",
+      "surprisal": 3.8716650009155273
+    },
+    {
+      "token": "Ġat",
+      "surprisal": 3.65844464302063
+    },
+    {
+      "token": "Ġinputs",
+      "surprisal": 9.579094886779785
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 2.445810079574585
+    },
+    {
+      "token": "Ġone",
+      "surprisal": 2.9456331729888916
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 2.015984058380127
+    },
+    {
+      "token": "Ġthree",
+      "surprisal": 3.7903106212615967
+    },
+    {
+      "token": ".",
+      "surprisal": 1.5609406232833862
+    },
+    {
+      "token": "ĠDeter",
+      "surprisal": 10.433150291442871
+    },
+    {
+      "token": "mine",
+      "surprisal": 0.8487955927848816
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 0.6849991083145142
+    },
+    {
+      "token": "Ġgeneral",
+      "surprisal": 7.170788764953613
+    },
+    {
+      "token": "Ġshape",
+      "surprisal": 5.322185516357422
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 0.1606529802083969
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 0.30417540669441223
+    },
+    {
+      "token": "Ġgraph",
+      "surprisal": 2.7249906063079834
+    },
+    {
+      "token": ",",
+      "surprisal": 3.392289400100708
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 3.1600842475891113
+    },
+    {
+      "token": "Ġintervals",
+      "surprisal": 7.576169967651367
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 4.556529521942139
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 0.6004742383956909
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 2.818126916885376
+    },
+    {
+      "token": "Ġincreases",
+      "surprisal": 5.349557876586914
+    },
+    {
+      "token": "Ġor",
+      "surprisal": 2.03597092628479
+    },
+    {
+      "token": "Ġdecreases",
+      "surprisal": 0.02817475236952305
+    },
+    {
+      "token": ",",
+      "surprisal": 1.20344877243042
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 0.5637112259864807
+    },
+    {
+      "token": "Ġdescribe",
+      "surprisal": 7.385472297668457
+    },
+    {
+      "token": "Ġhow",
+      "surprisal": 2.000166416168213
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 0.8188772201538086
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 1.4408575296401978
+    },
+    {
+      "token": "Ġbehaves",
+      "surprisal": 3.949506998062134
+    },
+    {
+      "token": "Ġas",
+      "surprisal": 2.645690441131592
+    },
+    {
+      "token": "Ġthe",
+      "surprisal": 2.3573710918426514
+    },
+    {
+      "token": "Ġinput",
+      "surprisal": 2.969003438949585
+    },
+    {
+      "token": "Ġbecomes",
+      "surprisal": 4.319082736968994
+    },
+    {
+      "token": "Ġvery",
+      "surprisal": 7.433008193969727
+    },
+    {
+      "token": "Ġlarge",
+      "surprisal": 1.2440396547317505
+    },
+    {
+      "token": "Ġor",
+      "surprisal": 3.553971290588379
+    },
+    {
+      "token": "Ġvery",
+      "surprisal": 1.4709117412567139
+    },
+    {
+      "token": "Ġsmall",
+      "surprisal": 0.051792602986097336
+    },
+    {
+      "token": ".",
+      "surprisal": 0.20033346116542816
+    }
+  ],
+  "optimized_token_surprisal": [
+    {
+      "token": "nom",
+      "surprisal": 9.793020248413086
+    },
+    {
+      "token": "ial",
+      "surprisal": 0.456249862909317
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 4.892908573150635
+    },
+    {
+      "token": "Ġhas",
+      "surprisal": 5.688206672668457
+    },
+    {
+      "token": "Ġone",
+      "surprisal": 5.493766784667969
+    },
+    {
+      "token": "Ġturning",
+      "surprisal": 11.844032287597656
+    },
+    {
+      "token": "Ġpoint",
+      "surprisal": 1.526403784751892
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 4.496312141418457
+    },
+    {
+      "token": "Ġit",
+      "surprisal": 1.6593716144561768
+    },
+    {
+      "token": "Ġreaches",
+      "surprisal": 5.513019561767578
+    },
+    {
+      "token": "Ġlocal",
+      "surprisal": 10.227362632751465
+    },
+    {
+      "token": "Ġmaximum",
+      "surprisal": 4.864407062530518
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 2.4585704803466797
+    },
+    {
+      "token": "Ġanother",
+      "surprisal": 3.1696670055389404
+    },
+    {
+      "token": "Ġturning",
+      "surprisal": 1.602051854133606
+    },
+    {
+      "token": "Ġpoint",
+      "surprisal": 0.011014941148459911
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 0.14783857762813568
+    },
+    {
+      "token": "Ġit",
+      "surprisal": 0.110532745718956
+    },
+    {
+      "token": "Ġreaches",
+      "surprisal": 1.0422427654266357
+    },
+    {
+      "token": "Ġlocal",
+      "surprisal": 2.400273323059082
+    },
+    {
+      "token": "Ġminimum",
+      "surprisal": 0.23106881976127625
+    },
+    {
+      "token": "Ġ.",
+      "surprisal": 4.667809963226318
+    },
+    {
+      "token": "Ġgraph",
+      "surprisal": 12.328754425048828
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 5.22878360748291
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 4.052171230316162
+    },
+    {
+      "token": "Ġpasses",
+      "surprisal": 8.411284446716309
+    },
+    {
+      "token": "Ġthrough",
+      "surprisal": 2.429023265838623
+    },
+    {
+      "token": "Ġpoint",
+      "surprisal": 4.991457939147949
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 3.7645678520202637
+    },
+    {
+      "token": "Ġinput",
+      "surprisal": 7.3868408203125
+    },
+    {
+      "token": "Ġzero",
+      "surprisal": 6.350905418395996
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 2.798480272293091
+    },
+    {
+      "token": "Ġoutput",
+      "surprisal": 0.4162261188030243
+    },
+    {
+      "token": "Ġfour",
+      "surprisal": 4.950560569763184
+    },
+    {
+      "token": "Ġ.",
+      "surprisal": 3.599975824356079
+    },
+    {
+      "token": "Ġrate",
+      "surprisal": 9.79183292388916
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 0.9940578937530518
+    },
+    {
+      "token": "Ġchange",
+      "surprisal": 1.3228728771209717
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 1.4031076431274414
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 1.8965879678726196
+    },
+    {
+      "token": "Ġzero",
+      "surprisal": 7.893416881561279
+    },
+    {
+      "token": "Ġat",
+      "surprisal": 4.9925150871276855
+    },
+    {
+      "token": "Ġinputs",
+      "surprisal": 6.743540287017822
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 3.8381781578063965
+    },
+    {
+      "token": "Ġone",
+      "surprisal": 3.0053889751434326
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 1.7610920667648315
+    },
+    {
+      "token": "Ġthree",
+      "surprisal": 3.6455273628234863
+    },
+    {
+      "token": "Ġ.",
+      "surprisal": 1.905410885810852
+    },
+    {
+      "token": "Ġdetermine",
+      "surprisal": 9.12687873840332
+    },
+    {
+      "token": "Ġgeneral",
+      "surprisal": 8.301231384277344
+    },
+    {
+      "token": "Ġshape",
+      "surprisal": 5.34195613861084
+    },
+    {
+      "token": "Ġof",
+      "surprisal": 0.20594055950641632
+    },
+    {
+      "token": "Ġgraph",
+      "surprisal": 2.1788177490234375
+    },
+    {
+      "token": "Ġ,",
+      "surprisal": 4.537661075592041
+    },
+    {
+      "token": "Ġintervals",
+      "surprisal": 9.957480430603027
+    },
+    {
+      "token": "Ġwhere",
+      "surprisal": 4.507357597351074
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 3.844296455383301
+    },
+    {
+      "token": "Ġincreases",
+      "surprisal": 6.51647424697876
+    },
+    {
+      "token": "Ġor",
+      "surprisal": 3.1331379413604736
+    },
+    {
+      "token": "Ġdecreases",
+      "surprisal": 0.01767851784825325
+    },
+    {
+      "token": "Ġ,",
+      "surprisal": 3.306833267211914
+    },
+    {
+      "token": "Ġand",
+      "surprisal": 1.7379813194274902
+    },
+    {
+      "token": "Ġdescribe",
+      "surprisal": 9.666020393371582
+    },
+    {
+      "token": "Ġhow",
+      "surprisal": 3.2264230251312256
+    },
+    {
+      "token": "Ġfunction",
+      "surprisal": 2.589891195297241
+    },
+    {
+      "token": "Ġbehaves",
+      "surprisal": 3.7772281169891357
+    },
+    {
+      "token": "Ġas",
+      "surprisal": 2.647780179977417
+    },
+    {
+      "token": "Ġinput",
+      "surprisal": 4.550487041473389
+    },
+    {
+      "token": "Ġbecomes",
+      "surprisal": 5.812173843383789
+    },
+    {
+      "token": "Ġvery",
+      "surprisal": 6.96004056930542
+    },
+    {
+      "token": "Ġlarge",
+      "surprisal": 1.461195468902588
+    },
+    {
+      "token": "Ġor",
+      "surprisal": 3.619166374206543
+    },
+    {
+      "token": "Ġvery",
+      "surprisal": 1.3127037286758423
+    },
+    {
+      "token": "Ġsmall",
+      "surprisal": 0.0772831067442894
+    },
+    {
+      "token": "Ġ.",
+      "surprisal": 0.391661673784256
+    }
+  ],
+  "statistics": {
+    "original_avg_surprisal": 2.9952449723489973,
+    "optimized_avg_surprisal": 4.093392968562742,
+    "original_max_surprisal": 12.422514915466309,
+    "optimized_max_surprisal": 12.328754425048828,
+    "original_min_surprisal": 0.00832526758313179,
+    "optimized_min_surprisal": 0.011014941148459911
+  }
+}

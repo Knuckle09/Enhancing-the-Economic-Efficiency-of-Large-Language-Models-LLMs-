@@ -1,0 +1,33 @@
+================================================================================
+TOKEN OPTIMIZATION ANALYSIS REPORT
+================================================================================
+Generated: 2025-08-07 14:59:34
+
+OPTIMIZATION RESULTS:
+----------------------------------------
+Original tokens: 98
+Optimized tokens: 77
+Token reduction: 21.4%
+Response similarity: 0.777 (77.7%)
+Success: ❌ NO
+
+ORIGINAL TEXT:
+----------------------------------------
+A polynomial function has one turning point where it reaches a local maximum and another turning point where it reaches a local minimum. The graph of the function passes through the point where the input is zero and the output is four. The rate of change of the function is zero at inputs of one and three. Determine the general shape of the graph, the intervals where the function increases or decreases, and describe how the function behaves as the input becomes very large or very small.
+
+OPTIMIZED TEXT:
+----------------------------------------
+polynomial function has one turning point where it reaches local maximum and another turning point where it reaches local minimum . graph of function passes through point where input zero and output four . rate of change of function zero at inputs of one and three . determine general shape of graph , intervals where function increases or decreases , and describe how function behaves as input becomes very large or very small .
+
+SURPRISAL STATISTICS:
+----------------------------------------
+Original avg surprisal: 2.9952
+Optimized avg surprisal: 4.0934
+Original max surprisal: 12.4225
+Optimized max surprisal: 12.3288
+
+ANALYSIS INSIGHTS:
+----------------------------------------
+✅ Optimization increased average token surprisal (better information density)
+📊 Reduction efficiency: 42.9% of target
+⚠️  Moderate response similarity maintained

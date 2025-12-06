@@ -1,0 +1,13 @@
+# LLM PREPROCESSING EFFICIENCY TEST SUMMARY
+
+Average token reduction: 47.71%
+Average response similarity: 0.1324 (13.24%)
+
+## DETAILED RESULTS
+
+### Test 1
+Token reduction: 47.71%
+Response similarity: 0.1324
+Original prompt tokens: 109
+Processed prompt tokens: 57
+

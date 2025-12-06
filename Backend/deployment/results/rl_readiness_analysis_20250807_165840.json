@@ -1,0 +1,129 @@
+{
+  "timestamp": "20250807_165840",
+  "overall_stats": {
+    "total_prompts": 12,
+    "successful_optimizations": 0,
+    "avg_reduction": 16.479057401714652,
+    "avg_similarity": 0.9430089394251505,
+    "success_rate": 0.0
+  },
+  "category_results": {
+    "mathematical": [
+      {
+        "original_prompt": "Find the derivative of f(x) = 3x^2 + 2x - 5 and determine where the function has critical points. Explain the meaning of these critical points in terms of the function's behavior.",
+        "optimized_prompt": "f'(x)= f(x) = 3x^2 + 2x - 5 find critical points. explain critical points.",
+        "token_reduction": 37.5,
+        "semantic_similarity": 0.9099360704421997,
+        "llm_response_similarity": 0.9099360704421997,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "A polynomial function has one turning point where it reaches a local maximum and another turning point where it reaches a local minimum. The graph passes through (0,4). The rate of change equals zero at x=1 and x=3. Find the graph shape and behavior.",
+        "optimized_prompt": "polynomial function has one turning point where it reaches local maximum and another turning point where it reaches local minimum . graph passes through ( ) . rate of change equals zero at and . find graph shape and behavior .",
+        "token_reduction": 25.0,
+        "semantic_similarity": 0.9288152456283569,
+        "llm_response_similarity": 0.9288152456283569,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "Calculate the probability that a randomly selected value falls between 70 and 100 given mean 85 and standard deviation 12. Show your work using z-scores.",
+        "optimized_prompt": "a randomly randomly selected calculate probability that value fall between 70 100 given mean 85 standard deviation 12 show your work using z-scores",
+        "token_reduction": 12.195121951219512,
+        "semantic_similarity": 0.967717170715332,
+        "llm_response_similarity": 0.967717170715332,
+        "target_achieved": false,
+        "rl_ready": false
+      }
+    ],
+    "coding": [
+      {
+        "original_prompt": "Write a Python function that takes a list of integers and returns only even numbers sorted in descending order. Include error handling for invalid inputs.",
+        "optimized_prompt": "write python function that takes list of integers and returns only even numbers sorted in descending order . include error handling for invalid inputs .",
+        "token_reduction": 10.0,
+        "semantic_similarity": 0.9958364963531494,
+        "llm_response_similarity": 0.9958364963531494,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "Implement binary search algorithm in Python that finds target value index in sorted array, return -1 if not found.",
+        "optimized_prompt": "implement binary search algorithm in python that finds target value index in sorted array , return if not found .",
+        "token_reduction": 12.5,
+        "semantic_similarity": 0.9578593969345093,
+        "llm_response_similarity": 0.9578593969345093,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "Create Python stack class with push, pop, peek, is_empty methods including proper error handling for empty stack operations.",
+        "optimized_prompt": "stack class: push/pop/peek/empty error handling empty stack operations.",
+        "token_reduction": 30.76923076923077,
+        "semantic_similarity": 0.8570911884307861,
+        "llm_response_similarity": 0.8570911884307861,
+        "target_achieved": false,
+        "rl_ready": false
+      }
+    ],
+    "business": [
+      {
+        "original_prompt": "Analyze quarterly sales performance and identify top 3 factors contributing to 15% revenue decline. Provide actionable recommendations for improvement.",
+        "optimized_prompt": "analyze quarterly sales performance performance and and identify identify top % revenue revenue decline 3 factor contributing 15 recommendations for for improvement provide actionable",
+        "token_reduction": 0.0,
+        "semantic_similarity": 0.9350429773330688,
+        "llm_response_similarity": 0.9350429773330688,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "Calculate ROI for $500K marketing campaign generating $2.3M additional revenue over 6 months. Show calculation steps and interpret results.",
+        "optimized_prompt": "calculate roi roi for for $ marketing campaign 500k generating additional revenue over 6 month show calculation calculation steps and interpret interpret results",
+        "token_reduction": 11.428571428571429,
+        "semantic_similarity": 0.9181848764419556,
+        "llm_response_similarity": 0.9181848764419556,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "Create project timeline for implementing new CRM system across 5 departments. Include resource allocation, training phases, risk mitigation.",
+        "optimized_prompt": "create project timeline for implementing new crm system across 5 departments . include resource allocation , training phases , risk mitigation .",
+        "token_reduction": 3.3333333333333335,
+        "semantic_similarity": 0.9999999403953552,
+        "llm_response_similarity": 0.9999999403953552,
+        "target_achieved": false,
+        "rl_ready": false
+      }
+    ],
+    "creative": [
+      {
+        "original_prompt": "Write compelling 500-word blog post about remote work benefits for small businesses. Include practical tips, statistics, and call-to-action for business owners.",
+        "optimized_prompt": "write compelling blog post about remote work benefits for small businesses . include practical tips , statistics , and for business owners .",
+        "token_reduction": 30.76923076923077,
+        "semantic_similarity": 0.9637157917022705,
+        "llm_response_similarity": 0.9637157917022705,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "Create engaging email subject line for summer sale campaign promoting 40% off outdoor furniture. Target audience is homeowners aged 35-55.",
+        "optimized_prompt": "create engaging email subject line for summer sale campaign promoting 40 off outdoor furniture . target audience homeowners aged .",
+        "token_reduction": 21.62162162162162,
+        "semantic_similarity": 0.9352619647979736,
+        "llm_response_similarity": 0.9352619647979736,
+        "target_achieved": false,
+        "rl_ready": false
+      },
+      {
+        "original_prompt": "Generate 10 Instagram captions for fitness brand promoting new protein powder. Include relevant hashtags, emojis, calls-to-action.",
+        "optimized_prompt": "generate 10 instagram captions captions for for fitness fitness brand protein powder promoting new include relevant hashtags emojis calls-to-action",
+        "token_reduction": 2.631578947368421,
+        "semantic_similarity": 0.9466461539268494,
+        "llm_response_similarity": 0.9466461539268494,
+        "target_achieved": false,
+        "rl_ready": false
+      }
+    ]
+  },
+  "rl_readiness": false
+}

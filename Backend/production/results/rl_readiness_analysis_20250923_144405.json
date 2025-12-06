@@ -1,0 +1,34 @@
+{
+  "timestamp": "20250923_144405",
+  "overall_stats": {
+    "total_prompts": 612,
+    "successful_optimizations": 527,
+    "avg_reduction": 43.588159712864716,
+    "avg_similarity": 0.8870936013709486,
+    "success_rate": 86.11111111111111
+  },
+  "category_results": {
+    "coding": {
+      "total": 199,
+      "successful": 184,
+      "success_rate": 92.46231155778895,
+      "avg_reduction": 53.13766096800201,
+      "avg_similarity": 0.8806337917869415
+    },
+    "math": {
+      "total": 213,
+      "successful": 150,
+      "success_rate": 70.4225352112676,
+      "avg_reduction": 34.42422459373721,
+      "avg_similarity": 0.8943968625135825
+    },
+    "generic": {
+      "total": 200,
+      "successful": 193,
+      "success_rate": 96.5,
+      "avg_reduction": 43.845996865873914,
+      "avg_similarity": 0.8857431387901307
+    }
+  },
+  "rl_readiness": true
+}

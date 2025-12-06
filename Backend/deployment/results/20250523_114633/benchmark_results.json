@@ -1,0 +1,228 @@
+{
+  "summary": {
+    "standard": {
+      "avg_token_reduction": 28.286977714309142,
+      "avg_similarity": 0.9812778979539871,
+      "min_similarity": 0.9714469313621521,
+      "max_token_reduction": 30.23255813953488
+    },
+    "improved": {
+      "avg_token_reduction": 28.286977714309142,
+      "avg_similarity": 0.9812778979539871,
+      "min_similarity": 0.9714469313621521,
+      "max_token_reduction": 30.23255813953488
+    },
+    "llm": {
+      "avg_token_reduction": 24.60285559737205,
+      "avg_response_similarity": 0.7817362695932388,
+      "min_response_similarity": 0.5357725620269775,
+      "max_token_reduction": 25.49019607843137,
+      "target_achieved": false
+    }
+  },
+  "prompts": [
+    {
+      "id": 1,
+      "type": "math",
+      "original": "A polynomial function has one turning point where it reaches a local maximum and another turning point where it reaches a local minimum. The graph of the function passes through the point where the input is zero and the output is four. The rate of change of the function is zero at inputs of one and three. Determine the general shape of the graph, the intervals where the function increases or decreases, and describe how the function behaves as the input becomes very large or very small.",
+      "metrics": {
+        "original_tokens": 103,
+        "standard_tokens": 77,
+        "improved_tokens": 77,
+        "standard_reduction": 25.24271844660194,
+        "improved_reduction": 25.24271844660194,
+        "standard_similarity": 0.9714469313621521,
+        "improved_similarity": 0.9714469313621521,
+        "llm_token_reduction": 23.423423423423422,
+        "llm_response_similarity": 0.7978125810623169,
+        "llm_time_difference": 2.74855579077418
+      },
+      "standard_processed": "polynomial function has one turning point where it reaches local maximum and another turning point where it reaches local minimum . graph of function passes through point where input zero and output four . rate of change of function zero at inputs of one and three . determine general shape of graph , intervals where function increases or decreases , and describe how function behaves as input becomes very large or very small .",
+      "improved_processed": "polynomial function has one turning point where it reaches local maximum and another turning point where it reaches local minimum . graph of function passes through point where input zero and output four . rate of change of function zero at inputs of one and three . determine general shape of graph , intervals where function increases or decreases , and describe how function behaves as input becomes very large or very small ."
+    },
+    {
+      "id": 2,
+      "type": "creative",
+      "original": "Write a short story about a detective who discovers that the criminal they've been tracking for years is actually their long-lost sibling. Include details about their reunion and how they resolve this complex situation.",
+      "metrics": {
+        "original_tokens": 51,
+        "standard_tokens": 36,
+        "improved_tokens": 36,
+        "standard_reduction": 29.411764705882355,
+        "improved_reduction": 29.411764705882355,
+        "standard_similarity": 0.9734104871749878,
+        "improved_similarity": 0.9734104871749878,
+        "llm_token_reduction": 25.423728813559322,
+        "llm_response_similarity": 0.5357725620269775,
+        "llm_time_difference": -74.40615984379431
+      },
+      "standard_processed": "write short story about detective who discovers that criminal they been tracking for years actually their sibling . include details about their reunion and how they resolve this complex situation .",
+      "improved_processed": "write short story about detective who discovers that criminal they been tracking for years actually their sibling . include details about their reunion and how they resolve this complex situation ."
+    },
+    {
+      "id": 3,
+      "type": "code",
+      "original": "Create a Python function that takes a list of integers as input and returns the sum of all even numbers in the list. Include error handling for non-integer inputs and appropriate documentation.",
+      "metrics": {
+        "original_tokens": 43,
+        "standard_tokens": 30,
+        "improved_tokens": 30,
+        "standard_reduction": 30.23255813953488,
+        "improved_reduction": 30.23255813953488,
+        "standard_similarity": 0.9893161058425903,
+        "improved_similarity": 0.9893161058425903,
+        "llm_token_reduction": 25.49019607843137,
+        "llm_response_similarity": 0.9100068211555481,
+        "llm_time_difference": 26.041349495438375
+      },
+      "standard_processed": "create python function that takes list of integers as input and returns sum of all even numbers in list . include error handling for inputs and appropriate documentation .",
+      "improved_processed": "create python function that takes list of integers as input and returns sum of all even numbers in list . include error handling for inputs and appropriate documentation ."
+    },
+    {
+      "id": 4,
+      "type": "knowledge",
+      "original": "Explain the process of photosynthesis in plants and how it contributes to the Earth's oxygen cycle. Include the chemical reactions involved and the role of chlorophyll.",
+      "metrics": {
+        "original_tokens": 46,
+        "standard_tokens": 33,
+        "improved_tokens": 33,
+        "standard_reduction": 28.26086956521739,
+        "improved_reduction": 28.26086956521739,
+        "standard_similarity": 0.9909380674362183,
+        "improved_similarity": 0.9909380674362183,
+        "llm_token_reduction": 24.074074074074073,
+        "llm_response_similarity": 0.8833531141281128,
+        "llm_time_difference": 1.0771202230307204
+      },
+      "standard_processed": "explain process of photosynthesis in plants and how it contributes to earth oxygen cycle . include chemical reactions involved and role of chlorophyll .",
+      "improved_processed": "explain process of photosynthesis in plants and how it contributes to earth oxygen cycle . include chemical reactions involved and role of chlorophyll ."
+    }
+  ],
+  "standard_metrics": [
+    {
+      "prompt_id": 1,
+      "prompt_type": "math",
+      "token_reduction": 25.24271844660194,
+      "similarity": 0.9714469313621521
+    },
+    {
+      "prompt_id": 2,
+      "prompt_type": "creative",
+      "token_reduction": 29.411764705882355,
+      "similarity": 0.9734104871749878
+    },
+    {
+      "prompt_id": 3,
+      "prompt_type": "code",
+      "token_reduction": 30.23255813953488,
+      "similarity": 0.9893161058425903
+    },
+    {
+      "prompt_id": 4,
+      "prompt_type": "knowledge",
+      "token_reduction": 28.26086956521739,
+      "similarity": 0.9909380674362183
+    }
+  ],
+  "improved_metrics": [
+    {
+      "prompt_id": 1,
+      "prompt_type": "math",
+      "token_reduction": 25.24271844660194,
+      "similarity": 0.9714469313621521
+    },
+    {
+      "prompt_id": 2,
+      "prompt_type": "creative",
+      "token_reduction": 29.411764705882355,
+      "similarity": 0.9734104871749878
+    },
+    {
+      "prompt_id": 3,
+      "prompt_type": "code",
+      "token_reduction": 30.23255813953488,
+      "similarity": 0.9893161058425903
+    },
+    {
+      "prompt_id": 4,
+      "prompt_type": "knowledge",
+      "token_reduction": 28.26086956521739,
+      "similarity": 0.9909380674362183
+    }
+  ],
+  "llm_results": [
+    {
+      "test_id": 1,
+      "original_prompt": "\n            A polynomial function has one turning point where it reaches a local maximum and another turning point where it reaches a local minimum. The graph of the function passes through the point where the input is zero and the output is four. The rate of change of the function is zero at inputs of one and three. Determine the general shape of the graph, the intervals where the function increases or decreases, and describe how the function behaves as the input becomes very large or very small.\n            ",
+      "processed_prompt": "polynomial function has one turning point where it reaches local maximum and another turning point where it reaches local minimum . graph of function passes through point where input zero and output four . rate of change of function zero at inputs of one and three . determine general shape of graph , intervals where function increases or decreases , and describe how function behaves as input becomes very large or very small .",
+      "original_tokens": 111,
+      "processed_tokens": 85,
+      "token_reduction": 26,
+      "token_reduction_percent": 23.423423423423422,
+      "original_response_time": 35.6731231212616,
+      "processed_response_time": 34.69262742996216,
+      "time_difference": 0.9804956912994385,
+      "time_difference_percent": 2.74855579077418,
+      "response_similarity": 0.7978125810623169,
+      "original_response": "1. The graph of the function passes through the point where the input is zero and the output is four. The graph has a local maximum at the point where the input is zero and a local minimum at the point where the input is three. The rate of change of the function is zero at inputs of one and three.\n\n2. The function behaves as follows:\n- For small inputs, the function increases monotonically. As the input approaches zero, the function begins to approach a local maximum, which occurs at the point where the input is zero. The function then decreases to a local minimum.\n- For large inputs, the function decreases monotonically. As the input approaches three, the function approaches a local maximum, which occurs at the point where the input is three. The function then decreases to a local minimum.\n- As the input approaches infinity, the function approaches a constant value, which is four.\n\n3. The function can be graphed in different ways. One way is to plot the function against the x-axis. The function's graph will have a local maximum near the point where the input is zero, and a local minimum near the point where the input is three. The rate of change of the function will be zero at the points where the input is zero and three.\n\n4. The function behaves as follows:\n- For small inputs, the function increases monotonically. As the input approaches zero, the function begins to approach a local maximum, which occurs at the point where the input is zero. The function then decreases to a local minimum.\n- For large inputs, the function decreases monotonically. As the input approaches three, the function approaches a local maximum, which occurs at the point where the input is three. The function then decreases to a local minimum.\n- As the input approaches infinity, the function approaches a constant value, which is four.\n\nI hope this helps!",
+      "processed_response": "The graph of a polynomial function passes through the point where the input zero is reached and the output four. The rate of change of the function at the point where input zero is reached is equal to zero, indicating that the function has no local maximum or minimum.\n\nIntervals where the function increases or decreases can be determined by noting that the derivative of a polynomial function is positive (i.e., the function increases) if the derivative is positive at each zero of the function, and negative (i.e., the function decreases) if the derivative is negative at each zero of the function. Therefore, the interval where the derivative increases is the interval where the function has a local maximum, which is the interval where the point where the input zero is reached is the turning point of the derivative.\n\nThe function behaves as input becomes very large or very small in the following ways:\n\n1. As input becomes very large, the function approaches a limiting value, which is the zero of the function. When the input is very large, the derivative approaches zero, indicating that the function approaches a local minimum.\n\n2. As input becomes very small, the function approaches a limiting value, which is the zero of the function. When the input is very small, the derivative approaches infinity, indicating that the function approaches a local maximum.\n\nFor example, consider the function f(x) = x^2 + 2x - 3. The derivative of f(x) at x = 0 is 2x + 2 - 3. If we take the limit as x approaches zero, we get f'(0) = 2 and f'(0) = 2. Therefore, f(0) is a local maximum.\n\nSimilarly, if we take the limit as x approaches infinity, we get f'(0) = 0 and f'(0) = 0. Therefore, f(0) is a local minimum.",
+      "original_success": true,
+      "processed_success": true
+    },
+    {
+      "test_id": 2,
+      "original_prompt": "\n            Write a short story about a detective who discovers that the criminal they've been tracking for years is actually their long-lost sibling. Include details about their reunion and how they resolve this complex situation.\n            ",
+      "processed_prompt": "write short story about detective who discovers that criminal they been tracking for years actually their sibling . include details about their reunion and how they resolve this complex situation .",
+      "original_tokens": 59,
+      "processed_tokens": 44,
+      "token_reduction": 15,
+      "token_reduction_percent": 25.423728813559322,
+      "original_response_time": 25.712857246398926,
+      "processed_response_time": 44.84480690956116,
+      "time_difference": -19.13194966316223,
+      "time_difference_percent": -74.40615984379431,
+      "response_similarity": 0.5357725620269775,
+      "original_response": "Detective John had been tracking a notorious criminal for years, but he never found any leads that would help him catch him. He had interviewed countless suspects and witnesses, but nothing seemed to connect the dots.\n\nOne day, John received a tip that the criminal was hiding in a nearby town. He rushed to the location and found the criminal, a man who looked nothing like the criminal he had been tracking.\n\nAs they sat down to discuss the case, John realized that he had been searching for the wrong person all along. It turned out that the criminal he had been chasing was his long-lost sibling, who had been living in hiding for years.\n\nJohn was taken aback by the revelation. He had never considered that his sibling might have been living a double life. But he was determined to solve the case and bring his sibling to justice.\n\nJohn and his sibling talked for hours, finally coming to a resolution. The criminal had been living a double life for years, posing as a successful businessman to avoid being caught. John and his sibling reunited, and John was able to put the criminal behind bars.\n\nThe case had taken a new turn, and John had a newfound appreciation for the power of family and the importance of trust. He knew that he would always be grateful for his sibling's presence in his life, even if they had been separated for years.",
+      "processed_response": "Detective Jameson had been working the case for weeks, but he knew it wasn't going to be easy. A series of gruesome murders had plagued the city, and each victim was a link in a complex web of deceit and betrayal. The trail led back to a notorious criminal gang, known as the \"Five Eyes,\" who had been terrorizing the city for years.\nJameson had spent countless hours poring over the evidence, but he had yet to find a single lead. That is, until he received a tip from a mysterious source. The tip came in the form of a letter, addressed to Jameson's partner and fellow detective, Sarah. The letter contained a cryptic message, written in code, that seemed to point to a connection between the victim's last known whereabouts and the gang's operations.\nJameson was initially skeptical, but the evidence was too compelling. He reached out to Sarah, and she agreed to help him with the investigation. Together, they embarked on a harrowing journey through the city, hunting for clues and piecing together the puzzle that would lead them to the gang's headquarters.\nAs they made their way through the city, they encountered a variety of characters. There was Sarah's partner, a determined and tenacious detective named Lena, who had been on the case since the beginning. Then there was Jameson's partner, a seasoned veteran of the force, who was quick to offer his expertise and his own unique perspectives.\nTogether, they worked tirelessly, piecing together clues and uncovering hidden connections. They followed a trail of breadcrumbs, each one leading them closer to their target. Finally, they reached the gang's headquarters, a sprawling complex of buildings and tunnels.\nAs they entered, they were met with chaos. The gang was not at their headquarters; instead, they had taken refuge in another location, deep in the heart of the city. Jameson and Sarah set up a perimeter, keeping watch for any signs of trouble.\nAs the days passed, tensions rose between the gang and the detectives. The gang had been preparing for their reunion for weeks, and they were determined to keep it a secret. They hatched",
+      "original_success": true,
+      "processed_success": true
+    },
+    {
+      "test_id": 3,
+      "original_prompt": "\n            Create a Python function that takes a list of integers as input and returns the sum of all even numbers in the list. Include error handling for non-integer inputs and appropriate documentation.\n            ",
+      "processed_prompt": "create python function that takes list of integers as input and returns sum of all even numbers in list . include error handling for inputs and appropriate documentation .",
+      "original_tokens": 51,
+      "processed_tokens": 38,
+      "token_reduction": 13,
+      "token_reduction_percent": 25.49019607843137,
+      "original_response_time": 23.99185562133789,
+      "processed_response_time": 17.74405264854431,
+      "time_difference": 6.247802972793579,
+      "time_difference_percent": 26.041349495438375,
+      "response_similarity": 0.9100068211555481,
+      "original_response": "def sum_of_even_numbers(numbers):\n        \"\"\"\n        This function takes a list of integers as input and returns the sum of all even numbers in the list.\n        If the input list is empty or contains non-integer values, an error is raised.\n        \"\"\"\n        try:\n            if not isinstance(numbers, list):\n                raise TypeError(\"Input must be a list of integers.\")\n            \n            sum_even = 0\n            for num in numbers:\n                if num % 2 == 0:\n                    sum_even += num\n            \n            return sum_even\n        except TypeError as error:\n            raise error\n        \n        except ValueError as error:\n            raise error\n        \n    # Example usage\n    numbers = [1, 2, 3, 4, 5]\n    sum_of_even_numbers(numbers)\n    # Output: 10\n    \n    numbers = []\n    sum_of_even_numbers(numbers)\n    # Output: RuntimeError: Input must be a list of integers.",
+      "processed_response": "Here's the Python function that takes a list of integers as input and returns the sum of all even numbers in the list:\n\n```python\ndef sum_of_even_numbers(numbers):\n    sum = 0\n    for num in numbers:\n        if num % 2 == 0:\n            sum += num\n    return sum\n```\n\nHere's how you could use this function:\n\n```python\nnumbers = [5, 7, 9, 11, 13]\nsum_of_even_numbers(numbers)\n# Output: 25\n```\n\nNote that the function includes error handling for inputs. If the list is empty or contains non-integer values, the function will raise a `TypeError`. You could also add comments to explain each part of the function.",
+      "original_success": true,
+      "processed_success": true
+    },
+    {
+      "test_id": 4,
+      "original_prompt": "\n            Explain the process of photosynthesis in plants and how it contributes to the Earth's oxygen cycle. Include the chemical reactions involved and the role of chlorophyll.\n            ",
+      "processed_prompt": "explain process of photosynthesis in plants and how it contributes to earth oxygen cycle . include chemical reactions involved and role of chlorophyll .",
+      "original_tokens": 54,
+      "processed_tokens": 41,
+      "token_reduction": 13,
+      "token_reduction_percent": 24.074074074074073,
+      "original_response_time": 51.02506709098816,
+      "processed_response_time": 50.47546577453613,
+      "time_difference": 0.5496013164520264,
+      "time_difference_percent": 1.0771202230307204,
+      "response_similarity": 0.8833531141281128,
+      "original_response": "Photosynthesis is the process by which plants, algae, and certain bacteria use light energy to convert carbon dioxide, water, and nutrients (such as nitrogen and phosphorus) into glucose, oxygen, and other molecules. The process is essential for the Earth's ecosystems, as it is one of the primary sources of oxygen.\n\nIn plants, the process of photosynthesis takes place in chloroplasts, which are tiny structures located within the cells of plant leaves. Chloroplasts are surrounded by a membrane that allows water and carbon dioxide to enter and exit the cell. Inside the chloroplasts, the process of photosynthesis is divided into two stages: the light-dependent reactions (LDR) and the light-independent reactions (LID).\n\nThe LDR involves the conversion of carbon dioxide and water into glucose through the process of electron transport. The electrons are transported through a series of chemical reactions, which are catalyzed by the enzyme complexes, such as ATP synthase, which is responsible for converting ATP (adenosine triphosphate) into AMP (adenosine monophosphate) and NADPH (nicotinamide adenine dinucleotide phosphate). The electrons are also used to generate ATP, which is then used to pump protons across a pH gradient, allowing water to leave the cell.\n\nThe LID involves the conversion of glucose into oxygen and carbon dioxide, using the energy released by the electron transport chain. This stage involves the conversion of glucose into ATP through a series of chemical reactions that are catalyzed by enzymes such as Rubisco (ribulose-1,5-bisphosphate carboxylase/oxygenase). The energy released by this process is used to pump protons across a pH gradient, allowing oxygen to enter the cell.\n\nThe role of chlorophyll in photosynthesis is critical. This pigment absorbs light energy and transmits it to the stroma (the outermost layer of the chloroplasts), where it is used to generate ATP and NADPH. Chlorophyll",
+      "processed_response": "photosynthesis is a complex process wherein plants use light energy from the sun to convert carbon dioxide and water into organic matter, which can be used by plants for growth, development, and survival. The process of photosynthesis is composed of several chemical reactions that occur in the chloroplasts of plant cells.\nChlorophyll, the pigment responsible for photosynthesis, absorbs light energy from the sun and converts it into chemical energy through a series of chemical reactions. The process involves the conversion of carbon dioxide (co2) into glucose (glc), a source of energy for the plant.\nThe first step in photosynthesis is the conversion of co2 into glucose, which is the primary source of energy for the plant. The conversion of co2 into glucose is achieved by a series of chemical reactions involving enzymes, water, and oxygen.\nEnzymes catalyze the conversion of co2 into glucose, which is the building block of cellular respiration and the energy source for the plant. The process of photosynthesis is facilitated by a series of enzymes, including carboxylase, phycobilisomes, and cytochrome c oxidase, which work together to break down carbon dioxide into glucose.\nOnce glucose is produced, it is transported to the stroma of the chloroplasts where it is used for various functions. The primary function of glucose is to provide energy for the plant during photosynthesis.\nOther functions of glucose include glycogen storage, synthesis of cell walls, and storage of water for use during drought conditions. The process of photosynthesis is crucial for the earth's oxygen cycle, as it is the primary source of oxygen that is released into the atmosphere during photosynthesis.\nThe oxygen that is released during photosynthesis is essential for life on earth, as it is the primary source of oxygen that is consumed by organisms during respiration. The process of photosynthesis contributes to the earth's oxygen cycle by producing oxygen as a byproduct of the chemical reactions involved in photosynthesis.\nIn summary, photosynthesis is a complex process that involves the conversion of carbon dioxide into gl",
+      "original_success": true,
+      "processed_success": true
+    }
+  ],
+  "timestamp": "20250523_114633"
+}

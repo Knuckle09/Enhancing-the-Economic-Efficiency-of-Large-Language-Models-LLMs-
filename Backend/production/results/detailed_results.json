@@ -1,0 +1,20 @@
+[
+  {
+    "test_id": 1,
+    "original_prompt": "\nA polynomial function has one turning point where it reaches a local maximum and another turning point where it reaches a local minimum. The graph of the function passes through the point where the input is zero and the output is four. The rate of change of the function is zero at inputs of one and three. Determine the general shape of the graph, the intervals where the function increases or decreases, and describe how the function behaves as the input becomes very large or very small.\n",
+    "processed_prompt": "polynomial map 1 turn point reach local maximum another turn point reach local minimum graph map run point input nil yield 4 rate shift map nil input 1 3 find general form graph interval map gain fall draw map do input go large small",
+    "original_tokens": 109,
+    "processed_tokens": 57,
+    "token_reduction": 52,
+    "token_reduction_percent": 47.706422018348626,
+    "original_response_time": 9.928110599517822,
+    "processed_response_time": 41.729788303375244,
+    "time_difference": -31.801677703857422,
+    "time_difference_percent": -320.3195349717592,
+    "response_similarity": 0.13235053420066833,
+    "original_response": "The general shape of the graph of the function is a parabola with one turning point at the origin. The interval where the function increases is from 0 to \u221e, and the interval where it decreases is from \u221e to 0. The function behaves as a decreasing function at small inputs and as an increasing function at large inputs. As the input becomes very large or very small, the function approaches zero, and its rate of change approaches zero.",
+    "processed_response": "(defun polynomial-map-1 ()\n  (let ((t (current-time)))\n    (setq x0 1.0)\n    (setq x1 0.5)\n    (setq y0 1.0)\n    (setq y1 0.5)\n    (let* ((t0 (nth 0 (nth 0 (nth 0 (nth 1 (nth 1 (nth 1 t)))))))\n           (t1 (nth 0 (nth 0 (nth 1 (nth 1 (nth 2 (nth 2 (nth 2 t))))))))\n           (t2 (nth 0 (nth 0 (nth 1 (nth 1 (nth 2 (nth 2 (nth 3 (nth 3 t))))))))))\n      (setq x0 (* x0 x0))\n      (setq x1 (* x1 x1))\n      (setq y0 (* y0 y0))\n      (setq y1 (* y1 y1))\n      (let* ((gain (nth 0 (nth 0 (nth 1 (nth 1 (nth 2 (nth 2 (nth 3 (nth 3 t)))))))))\n             (diff (nth 0 (nth 0 (nth 1 (nth 1 (nth 2 (nth 2 (nth 4 (nth 5 t)))))))))\n             (x (nth 0 (nth 0 (nth 1 (nth 1 (nth 2 (nth 3 (nth 4 (nth 5 (nth 6 t)))))))))\n                (nth 0 (nth 1 (nth 1 (nth 2 (nth 3 (nth 4 (nth 5 (nth 6 t)))))))))\n             (y (nth 0 (nth 0 (nth 1 (nth 1 (nth 2 (nth 3 (nth 4 (nth 5 (nth 6 t)))))))))\n                (nth 0 (nth 1 (nth 1 (nth 2 (nth 3 (nth 4 (nth 5 (nth 6 t)))))))))\n             (gain (nth 0 (nth 0 (nth 1 (nth",
+    "original_success": true,
+    "processed_success": true
+  }
+]
