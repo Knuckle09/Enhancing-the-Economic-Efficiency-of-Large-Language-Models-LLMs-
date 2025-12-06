@@ -1,38 +1,25 @@
-# Python
+# Ignore virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Ignore model weights
+*.safetensors
+*.pt
+*.pth
+*.bin
+
+# Ignore compiled binaries
+*.pyd
+*.dll
+*.so
+*.dylib
+
+# Ignore ML model folders
+models/
+deployment/models/
+
+# Ignore Python cache
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-env/
-.venv/
-*.egg-info/
-*.log
-
-# HuggingFace
-.cache/
-hub/
-
-# Model weights
-*.safetensors
-models/
-
-# Node
-node_modules/
-dist/
-build/
-
-# Vite.js
-.vite/
-
-# OS files
-Thumbs.db
-.DS_Store
-
-# Local ignore rules
-node_modules/
-dist/
-.env
-
-# Remote ignore rules
-*.log
-.vscode/
