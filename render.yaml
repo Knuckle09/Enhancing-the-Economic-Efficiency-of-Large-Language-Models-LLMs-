@@ -11,8 +11,6 @@ services:
 
     startCommand: python api.py
 
-    pythonVersion: 3.12.10
-
     envVars:
       - key: GEMINI_API_KEY
         sync: false
