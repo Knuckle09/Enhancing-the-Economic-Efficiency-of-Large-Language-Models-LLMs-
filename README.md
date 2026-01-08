@@ -3,7 +3,7 @@ Nimbus AI is a reinforcement-learning powered framework that reduces LLM token u
 
 ![IMG-20250523-WA0014 1](https://github.com/user-attachments/assets/ea81d353-4ed2-409b-a317-45a019ceeaef)
 
-<div align="center"> <img src="NIMBUS AI" width="280">
+<div align="center"> <img src="NIMBUS AI" width="200">
 Nimbus AI
 Enhancing the Economic Efficiency of Large Language Models (LLMs)
 Reinforcement-Learning Powered Prompt Optimization + Multi-LLM Routing
@@ -41,9 +41,13 @@ Cost savings reach up to ~50% when combined with multi-model routing.
 This repository includes source code, research paper, dashboards, UI, evaluation charts, and publication certificates.
 
 🏆 Publication Certificates
-<img width="2000" height="1415" alt="e- Certificate IJSREM Prof  Farzana Nadaf" src="https://github.com/user-attachments/assets/258a74cf-6011-4a67-bb5c-73f9aacbf32e" />
+<img width="200" height="200" alt="e- Certificate IJSREM Prof  Farzana Nadaf" src="https://github.com/user-attachments/assets/258a74cf-6011-4a67-bb5c-73f9aacbf32e" />
+<img width="200" height="200" alt="e- Certificate IJSREM Sai Samarth Budihal" src="https://github.com/user-attachments/assets/ef668644-d20a-4232-95a7-9aa29fd1f43b" />
+<img width="200" height="200" alt="e- Certificate IJSREM Sughnva Chappar" src="https://github.com/user-attachments/assets/3488039a-c026-4bd2-9147-3162c8fbe605" />
+<img width="200" height="200" alt="e- Certificate IJSREM Suprit Mundagod" src="https://github.com/user-attachments/assets/e4280999-26c1-43de-9926-c28734e6e78b" />
+<img width="200" height="200" alt="e- Certificate IJSREM Vishwanath Kotyal" src="https://github.com/user-attachments/assets/f964ad9b-71a9-4e7a-9a48-f8e6bdea92b1" />
 
-<p align="center"> <img src="certificate_farzana.png" width="70%"> <br><i>Prof. Farzana Nadaf – Published Certificate</i> </p> <p align="center"> <img src="certificate_samarth.png" width="70%"> <br><i>Sai Samarth Budihal – Published Certificate</i> </p> <p align="center"> <img src="certificate_sughnva.png" width="70%"> <br><i>Sughnva Chappar – Published Certificate</i> </p> <p align="center"> <img src="certificate_suprit.png" width="70%"> <br><i>Suprit Mundagod – Published Certificate</i> </p> <p align="center"> <img src="certificate_vishwanath.png" width="70%"> <br><i>Vishwanath Kotyal – Published Certificate</i> </p>
+
 📚 Research Paper
 
 📄 Full Published Paper (IJSREM 2025)
@@ -51,9 +55,7 @@ Enhancing the Economic Efficiency of Large Language Models (LLMs)
 👉 Available in repository: /docs/Enhancing_the_Economic_Efficiency.pdf
 
 🧠 System Architecture
-![final architecture](https://github.com/user-attachments/assets/b22b72df-ff6d-4fab-85d7-4633945caa9f)
-
-<p align="center"> <img src="architecture_final.jpg" width="75%"> </p>
+![final architecture](https://github.com/user-attachments/assets/f9c1c8e1-c95f-402a-8c32-beb89d5c23e4)
 
 The architecture includes:
 
@@ -75,25 +77,33 @@ Feedback Engine
 
 🖥️ User Interface (Frontend)
 🔹 Auto Mode
-<p align="center"> <img src="Frontend.png" width="85%"> </p>
+<img width="200" height="200" alt="Frontend" src="https://github.com/user-attachments/assets/879e2bbe-27a9-4d76-bdf2-cd5920b58ed5" />
+
 🔹 Manual Model Selection
-<p align="center"> <img src="Frontend_2.png" width="85%"> </p>
+<img width="200" height="200" alt="Frontend_2" src="https://github.com/user-attachments/assets/79a9f36a-f008-4d73-8c43-9c47968a6142" />
+
 📊 Evaluation & Results
 
 All results are derived from your published paper and dashboard screenshots.
 
 🔹 Token Reduction vs Similarity
-<p align="center"> <img src="token_reduction_vs_similarity.png" width="85%"> </p>
+<img width="200" height="200" alt="token_reduction_vs_similarity" src="https://github.com/user-attachments/assets/26158ae0-ddf2-4488-9477-54db99f0cab9" />
+
 🔹 LLM Response Metrics
-<p align="center"> <img src="llm_response_metrics.png" width="85%"> </p>
+<img width="200" height="200" alt="llm_response_metrics" src="https://github.com/user-attachments/assets/cb32e54e-0302-4a1b-a20d-816a0e0f8fb5" />
+
 🔹 Performance by Prompt Type
-<p align="center"> <img src="metrics_by_prompt_type.png" width="85%"> </p>
+<img width="200" height="200" alt="metrics_by_prompt_type" src="https://github.com/user-attachments/assets/a3dc465c-c202-4083-a0d9-183edf3d59c8" />
+
 🔹 Analytics Dashboard
-<p align="center"> <img src="Results_1.png" width="85%"> </p>
+<img width="200" height="200" alt="Results_1" src="https://github.com/user-attachments/assets/e09abd96-542b-4a10-8c07-c759e3649c8c" />
+
 🔹 Cost Analysis
-<p align="center"> <img src="Results_2.png" width="85%"> </p>
+<img width="200" height="200" alt="Results_2" src="https://github.com/user-attachments/assets/c6004f39-2455-4d4b-adc9-b83a606a46c7" />
+
 🔹 Detailed Prompt Analysis
-<p align="center"> <img src="Results_3.png" width="85%"> </p>
+<img width="200" height="200" alt="Results_3" src="https://github.com/user-attachments/assets/37339098-d92a-4d9e-ae90-dbd58b0bec9a" />
+
 📈 Comparison with Existing Systems
 
 (From IJSREM Paper Table 1 & 2)
