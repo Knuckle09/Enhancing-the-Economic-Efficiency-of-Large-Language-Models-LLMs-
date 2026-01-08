@@ -1,7 +1,8 @@
 # Enhancing-the-Economic-Efficiency-of-Large-Language-Models-LLMs-
 Nimbus AI is a reinforcement-learning powered framework that reduces LLM token usage, preserves semantic meaning, and intelligently routes prompts across cloud and local models. It delivers up to 30% cost savings while maintaining >90% similarity, with full analytics and a modern UI.
 
-<div align="center"> <img src="NK_logo.png" width="280">
+<div align="center"> <img src="![IMG-20250523-WA0014 1](https://github.com/user-attachments/assets/412f4bc1-a372-408b-8309-fd34a3838b4f)
+" width="280">
 Nimbus AI
 Enhancing the Economic Efficiency of Large Language Models (LLMs)
 Reinforcement-Learning Powered Prompt Optimization + Multi-LLM Routing
