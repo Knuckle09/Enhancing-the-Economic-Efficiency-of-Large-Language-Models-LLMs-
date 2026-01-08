@@ -1,8 +1,9 @@
 # Enhancing-the-Economic-Efficiency-of-Large-Language-Models-LLMs-
 Nimbus AI is a reinforcement-learning powered framework that reduces LLM token usage, preserves semantic meaning, and intelligently routes prompts across cloud and local models. It delivers up to 30% cost savings while maintaining >90% similarity, with full analytics and a modern UI.
 
-<div align="center"> <img src="![IMG-20250523-WA0014 1](https://github.com/user-attachments/assets/412f4bc1-a372-408b-8309-fd34a3838b4f)
-" width="280">
+![IMG-20250523-WA0014 1](https://github.com/user-attachments/assets/ea81d353-4ed2-409b-a317-45a019ceeaef)
+
+<div align="center"> <img src="NIMBUS AI" width="280">
 Nimbus AI
 Enhancing the Economic Efficiency of Large Language Models (LLMs)
 Reinforcement-Learning Powered Prompt Optimization + Multi-LLM Routing
@@ -40,6 +41,8 @@ Cost savings reach up to ~50% when combined with multi-model routing.
 This repository includes source code, research paper, dashboards, UI, evaluation charts, and publication certificates.
 
 🏆 Publication Certificates
+<img width="2000" height="1415" alt="e- Certificate IJSREM Prof  Farzana Nadaf" src="https://github.com/user-attachments/assets/258a74cf-6011-4a67-bb5c-73f9aacbf32e" />
+
 <p align="center"> <img src="certificate_farzana.png" width="70%"> <br><i>Prof. Farzana Nadaf – Published Certificate</i> </p> <p align="center"> <img src="certificate_samarth.png" width="70%"> <br><i>Sai Samarth Budihal – Published Certificate</i> </p> <p align="center"> <img src="certificate_sughnva.png" width="70%"> <br><i>Sughnva Chappar – Published Certificate</i> </p> <p align="center"> <img src="certificate_suprit.png" width="70%"> <br><i>Suprit Mundagod – Published Certificate</i> </p> <p align="center"> <img src="certificate_vishwanath.png" width="70%"> <br><i>Vishwanath Kotyal – Published Certificate</i> </p>
 📚 Research Paper
 
@@ -48,6 +51,8 @@ Enhancing the Economic Efficiency of Large Language Models (LLMs)
 👉 Available in repository: /docs/Enhancing_the_Economic_Efficiency.pdf
 
 🧠 System Architecture
+![final architecture](https://github.com/user-attachments/assets/b22b72df-ff6d-4fab-85d7-4633945caa9f)
+
 <p align="center"> <img src="architecture_final.jpg" width="75%"> </p>
 
 The architecture includes:
