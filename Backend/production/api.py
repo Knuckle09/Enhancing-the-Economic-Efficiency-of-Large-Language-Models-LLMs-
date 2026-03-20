@@ -129,12 +129,11 @@ def process_prompt_api():
         return jsonify({"success": False, "error": "Prompt is required"}), 400
 
     if not framework_status["initialized"]:
-        initialize_framework()
-        if not framework_status["initialized"]:
-            return jsonify({
-                "success": False,
-                "error": framework_status.get("error", "Framework not initialized")
-            }), 503
+    return jsonify({
+        "success": False,
+        "error": "Framework not initialized. Model not loaded.",
+        "framework_status": framework_status
+    }), 503
 
     try:
         category = prompt_tester.classify_prompt(prompt)
