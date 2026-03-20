@@ -1,7 +1,7 @@
 // services/api.js
 // Base API configuration and utilities
 
-const API_BASE_URL = " https://tangy-justus-disappointedly.ngrok-free.dev/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://enhancing-the-economic-efficiency-of.onrender.com"
 
 class ApiService {
   constructor() {
