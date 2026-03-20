@@ -1,6 +1,5 @@
 // services/chatService.js
 // Handles chat-related API calls
-
 import { PROMPT_TYPES } from '../data/constants.js';
 import apiService from './api.js';
 
@@ -12,7 +11,6 @@ function generateId() {
 // Determine prompt category for API
 function getPromptCategory(prompt) {
   const lowerPrompt = prompt.toLowerCase();
-
   if (
     lowerPrompt.includes('code') ||
     lowerPrompt.includes('function') ||
@@ -36,7 +34,6 @@ function getPromptCategory(prompt) {
 // Determine prompt type for UI display
 function getPromptType(prompt) {
   const lowerPrompt = prompt.toLowerCase();
-
   if (lowerPrompt.includes('calculate') || lowerPrompt.includes('formula')) {
     return PROMPT_TYPES.MATH;
   } else if (lowerPrompt.includes('code') || lowerPrompt.includes('function')) {
@@ -49,12 +46,12 @@ function getPromptType(prompt) {
 }
 
 export class ChatService {
-  // Real API call to /process endpoint
+  // Real API call to /api/process endpoint
   static async sendMessageToAPI({
     prompt,
     includeResponse = true,
-    modelPreference = 'auto',   // 'auto' or 'manual'
-    selectedModel = null,       // only used when manual
+    modelPreference = 'auto',
+    selectedModel = null,
   }) {
     try {
       const payload = {
@@ -68,11 +65,13 @@ export class ChatService {
       }
 
       console.log('Sending to API:', payload);
-      const response = await apiService.post('/process', payload);
-      console.log('API Response:', response);
 
-      // response is exactly the backend contract
+      // ✅ Fixed: was '/process', now '/api/process'
+      const response = await apiService.post('/api/process', payload);
+
+      console.log('API Response:', response);
       return { success: true, data: response };
+
     } catch (error) {
       console.error('API Error:', error);
       return { success: false, error: error.message };
