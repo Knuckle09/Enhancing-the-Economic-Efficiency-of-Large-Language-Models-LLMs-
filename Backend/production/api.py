@@ -12,7 +12,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=[
+    "https://enhancing-the-economic-efficiency-o-iota.vercel.app",
+    "https://enhancing-the-economic-efficiency-of-large-language-19gwkjho2.vercel.app",
+    "*"
+])
 
 # No heavy imports at module level — Flask binds to port instantly
 logger.info("✅ Flask app created, binding to port...")
