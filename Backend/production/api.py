@@ -12,13 +12,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app, origins=[
-    "https://enhancing-the-economic-efficiency-o-iota.vercel.app",
-    "https://enhancing-the-economic-efficiency-of-large-language-19gwkjho2.vercel.app",
-    "*"
-])
 
-# No heavy imports at module level — Flask binds to port instantly
+# ✅ Correct CORS config — allows all origins
+CORS(app, resources={r"/*": {"origins": "*"}})
+
 logger.info("✅ Flask app created, binding to port...")
 
 framework_status = {"initialized": False, "error": None}
@@ -36,7 +33,6 @@ def initialize_framework():
     try:
         logger.info("🔄 Lazy-loading modules...")
 
-        # Import heavy modules here, not at top of file
         from run import process_prompt
         logger.info("✅ run imported")
 
@@ -133,7 +129,6 @@ def process_prompt_api():
         return jsonify({"success": False, "error": "Prompt is required"}), 400
 
     if not framework_status["initialized"]:
-        # Try to initialize on first request
         initialize_framework()
         if not framework_status["initialized"]:
             return jsonify({
@@ -169,6 +164,7 @@ def process_prompt_api():
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"success": False, "error": "Endpoint not found"}), 404
+
 
 @app.errorhandler(500)
 def server_error(e):
