@@ -46,8 +46,12 @@ def initialize_framework():
             rl_optimizer.model = PPO.load(model_path)
             logger.info(f"✅ Loaded trained RL model: {model_path}")
         else:
-            logger.warning("⚠️ No trained model found")
-            framework_status["error"] = "No trained model found"
+            logger.warning("⚠️ No trained model found at: " + model_path)
+            framework_status = {
+                "initialized": False,
+                "error": "No trained model found. Please upload a trained model.",
+                "timestamp": datetime.now().isoformat()
+            }
             return False
             
         framework_status = {
@@ -69,6 +73,17 @@ def initialize_framework():
             "timestamp": datetime.now().isoformat()
         }
         return False
+
+
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "name": "Nimbus AI - RL Text Optimization API",
+        "status": "running",
+        "framework_initialized": framework_status["initialized"],
+        "endpoints": ["/api/health", "/api/status", "/api/process"],
+        "timestamp": datetime.now().isoformat()
+    })
 
 
 @app.route('/api/health', methods=['GET'])
@@ -101,7 +116,10 @@ def process_prompt_api():
             return jsonify({"success": False, "error": "Prompt is required"}), 400
 
         if not framework_status["initialized"]:
-            return jsonify({"success": False, "error": "Framework not initialized"}), 500
+            return jsonify({
+                "success": False,
+                "error": "Framework not initialized. " + (framework_status.get("error") or "Unknown error.")
+            }), 503
         
         category = prompt_tester.classify_prompt(prompt)
         action, strategy = rl_optimizer.predict_optimal_strategy(prompt, category)
@@ -126,6 +144,7 @@ def process_prompt_api():
         })
         
     except Exception as e:
+        logger.error(f"Error processing prompt: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -139,24 +158,27 @@ def internal_error(error):
     return jsonify({"success": False, "error": "Internal server error"}), 500
 
 
-
-
 # ---------------------------------------------------------
-# 🔥 IMPORTANT: FIX FOR RENDER — binds using $PORT
+# 🔥 RENDER FIX: Server ALWAYS starts, regardless of model
 # ---------------------------------------------------------
 if __name__ == '__main__':
-    print("🚀 Starting RL-Based Text Optimization API Server...")
+    port = int(os.environ.get("PORT", 5000))
 
-    port = int(os.environ.get("PORT", 5000))  # <-- REQUIRED FOR RENDER
+    logger.info("🚀 Starting Nimbus AI API Server...")
+    logger.info(f"🌐 Binding to host=0.0.0.0, port={port}")
 
-    if initialize_framework():
-        print(f"🌐 Starting Flask server on port {port}...")
-        app.run(
-            host='0.0.0.0',
-            port=port,
-            debug=False,
-            threaded=True
-        )
+    # Initialize framework in background — don't block server startup
+    init_success = initialize_framework()
+    if init_success:
+        logger.info("✅ Framework ready.")
     else:
-        print("❌ Framework initialization failed.")
-        sys.exit(1)
+        logger.warning("⚠️ Framework not initialized — server still starting.")
+        logger.warning("   /api/process will return 503 until model is available.")
+
+    # Always start the server
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=False,
+        threaded=True
+    )
