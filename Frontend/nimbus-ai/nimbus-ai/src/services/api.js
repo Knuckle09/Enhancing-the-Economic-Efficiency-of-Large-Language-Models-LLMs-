@@ -1,11 +1,12 @@
 // services/api.js
 // Base API configuration and utilities
 
-const API_URL = import.meta.env.VITE_API_URL || "https://enhancing-the-economic-efficiency-of.onrender.com"
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://enhancing-the-economic-efficiency-of.onrender.com";
 
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
+    console.log("API Service initialized with URL:", this.baseURL);
   }
 
   async request(endpoint, options = {}) {
@@ -20,11 +21,9 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       return await response.json();
     } catch (error) {
       console.error('API request failed:', error);
