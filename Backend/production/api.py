@@ -1,11 +1,12 @@
 """
 Flask API - Nimbus AI Backend
-Final production version with correct model path
+Flask binds to port FIRST, then initializes framework in background thread
 """
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import logging
+import threading
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +17,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 logger.info("✅ Flask app created, binding to port...")
 
-framework_status = {"initialized": False, "error": None}
+framework_status = {"initialized": False, "error": None, "loading": False}
 rl_optimizer = None
 prompt_tester = None
 
@@ -24,12 +25,13 @@ prompt_tester = None
 def initialize_framework():
     global rl_optimizer, prompt_tester, framework_status
 
-    if framework_status["initialized"]:
-        return True
+    if framework_status["initialized"] or framework_status["loading"]:
+        return
+
+    framework_status["loading"] = True
+    logger.info("🔄 Background: loading modules...")
 
     try:
-        logger.info("🔄 Lazy-loading modules...")
-
         from run import process_prompt
         logger.info("✅ run imported")
 
@@ -43,28 +45,21 @@ def initialize_framework():
         rl_optimizer = RLOptimizer(training_data_file)
         prompt_tester = PromptDiversityTester()
 
-        # ✅ Correct path — file is in Backend/production/ directly
         model_path = "./text_optimizer_ppo.zip"
         if os.path.exists(model_path):
             from stable_baselines3 import PPO
             rl_optimizer.model = PPO.load(model_path)
             logger.info(f"✅ Loaded RL model: {model_path}")
         else:
-            logger.error(f"❌ Model not found at: {model_path}")
-            framework_status = {
-                "initialized": False,
-                "error": f"Model not found at {model_path}",
-                "timestamp": datetime.now().isoformat()
-            }
-            return False
+            raise FileNotFoundError(f"Model not found at {model_path}")
 
         framework_status = {
             "initialized": True,
+            "loading": False,
             "error": None,
             "timestamp": datetime.now().isoformat()
         }
         logger.info("✅ Framework ready")
-        return True
 
     except Exception as e:
         import traceback
@@ -72,10 +67,10 @@ def initialize_framework():
         logger.error(f"❌ Init failed:\n{err}")
         framework_status = {
             "initialized": False,
+            "loading": False,
             "error": err,
             "timestamp": datetime.now().isoformat()
         }
-        return False
 
 
 @app.route('/', methods=['GET'])
@@ -84,7 +79,8 @@ def index():
         "name": "Nimbus AI API",
         "status": "running",
         "framework_initialized": framework_status["initialized"],
-        "endpoints": ["/api/health", "/api/status", "/api/process", "/api/init"],
+        "framework_loading": framework_status.get("loading", False),
+        "endpoints": ["/api/health", "/api/status", "/api/process"],
         "timestamp": datetime.now().isoformat()
     })
 
@@ -94,6 +90,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "framework_initialized": framework_status["initialized"],
+        "framework_loading": framework_status.get("loading", False),
         "timestamp": datetime.now().isoformat()
     })
 
@@ -101,16 +98,6 @@ def health():
 @app.route('/api/status', methods=['GET'])
 def status():
     return jsonify(framework_status)
-
-
-@app.route('/api/init', methods=['GET'])
-def init():
-    """Manually trigger framework initialization"""
-    success = initialize_framework()
-    return jsonify({
-        "success": success,
-        "status": framework_status
-    })
 
 
 @app.route('/api/process', methods=['POST'])
@@ -127,11 +114,16 @@ def process_prompt_api():
     if not prompt:
         return jsonify({"success": False, "error": "Prompt is required"}), 400
 
-    # Return 503 immediately — no lazy init on request
+    if framework_status.get("loading"):
+        return jsonify({
+            "success": False,
+            "error": "Framework is still loading, please try again in a moment."
+        }), 503
+
     if not framework_status["initialized"]:
         return jsonify({
             "success": False,
-            "error": framework_status.get("error") or "Framework not initialized. Call /api/init first."
+            "error": framework_status.get("error") or "Framework not initialized."
         }), 503
 
     try:
@@ -173,7 +165,9 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"🚀 Binding to 0.0.0.0:{port}")
 
-    # Initialize framework at startup
-    initialize_framework()
+    # Start framework loading in background AFTER Flask binds to port
+    t = threading.Thread(target=initialize_framework, daemon=True)
+    t.start()
 
+    # Flask starts immediately — port is bound before any imports run
     app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
