@@ -1,6 +1,6 @@
 """
 Flask API - Nimbus AI Backend
-Flask binds to port FIRST, then initializes framework in background thread
+Debug version - logs after every single import to find the hang
 """
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -17,7 +17,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 logger.info("✅ Flask app created, binding to port...")
 
-framework_status = {"initialized": False, "error": None, "loading": False}
+framework_status = {"initialized": False, "error": None, "loading": False, "step": "not started"}
 rl_optimizer = None
 prompt_tester = None
 
@@ -25,31 +25,52 @@ prompt_tester = None
 def initialize_framework():
     global rl_optimizer, prompt_tester, framework_status
 
-    if framework_status["initialized"] or framework_status["loading"]:
-        return
-
     framework_status["loading"] = True
-    logger.info("🔄 Background: loading modules...")
+    framework_status["step"] = "starting"
 
     try:
+        framework_status["step"] = "importing torch"
+        logger.info("🔄 importing torch...")
+        import torch
+        logger.info("✅ torch done")
+
+        framework_status["step"] = "importing run"
+        logger.info("🔄 importing run...")
         from run import process_prompt
-        logger.info("✅ run imported")
+        logger.info("✅ run done")
 
+        framework_status["step"] = "importing rl_optimizer"
+        logger.info("🔄 importing rl_optimizer...")
         from rl_optimizer import RLOptimizer, get_latest_training_data_file
-        logger.info("✅ rl_optimizer imported")
+        logger.info("✅ rl_optimizer done")
 
+        framework_status["step"] = "importing prompt_diversity_test"
+        logger.info("🔄 importing prompt_diversity_test...")
         from prompt_diversity_test import PromptDiversityTester
-        logger.info("✅ prompt_diversity_test imported")
+        logger.info("✅ prompt_diversity_test done")
 
+        framework_status["step"] = "loading training data"
+        logger.info("🔄 loading training data...")
         training_data_file = get_latest_training_data_file("./results")
+        logger.info(f"✅ training data: {training_data_file}")
+
+        framework_status["step"] = "creating RLOptimizer"
+        logger.info("🔄 creating RLOptimizer...")
         rl_optimizer = RLOptimizer(training_data_file)
+        logger.info("✅ RLOptimizer created")
+
+        framework_status["step"] = "creating PromptDiversityTester"
+        logger.info("🔄 creating PromptDiversityTester...")
         prompt_tester = PromptDiversityTester()
+        logger.info("✅ PromptDiversityTester created")
 
         model_path = "./text_optimizer_ppo.zip"
+        framework_status["step"] = f"loading model from {model_path}"
+        logger.info(f"🔄 loading model from {model_path}...")
         if os.path.exists(model_path):
             from stable_baselines3 import PPO
             rl_optimizer.model = PPO.load(model_path)
-            logger.info(f"✅ Loaded RL model: {model_path}")
+            logger.info("✅ model loaded")
         else:
             raise FileNotFoundError(f"Model not found at {model_path}")
 
@@ -57,18 +78,20 @@ def initialize_framework():
             "initialized": True,
             "loading": False,
             "error": None,
+            "step": "ready",
             "timestamp": datetime.now().isoformat()
         }
-        logger.info("✅ Framework ready")
+        logger.info("✅ Framework fully ready!")
 
     except Exception as e:
         import traceback
         err = traceback.format_exc()
-        logger.error(f"❌ Init failed:\n{err}")
+        logger.error(f"❌ Init failed at step '{framework_status.get('step')}':\n{err}")
         framework_status = {
             "initialized": False,
             "loading": False,
             "error": err,
+            "step": framework_status.get("step", "unknown"),
             "timestamp": datetime.now().isoformat()
         }
 
@@ -78,9 +101,7 @@ def index():
     return jsonify({
         "name": "Nimbus AI API",
         "status": "running",
-        "framework_initialized": framework_status["initialized"],
-        "framework_loading": framework_status.get("loading", False),
-        "endpoints": ["/api/health", "/api/status", "/api/process"],
+        "framework": framework_status,
         "timestamp": datetime.now().isoformat()
     })
 
@@ -90,7 +111,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "framework_initialized": framework_status["initialized"],
-        "framework_loading": framework_status.get("loading", False),
+        "step": framework_status.get("step"),
         "timestamp": datetime.now().isoformat()
     })
 
@@ -114,16 +135,10 @@ def process_prompt_api():
     if not prompt:
         return jsonify({"success": False, "error": "Prompt is required"}), 400
 
-    if framework_status.get("loading"):
-        return jsonify({
-            "success": False,
-            "error": "Framework is still loading, please try again in a moment."
-        }), 503
-
     if not framework_status["initialized"]:
         return jsonify({
             "success": False,
-            "error": framework_status.get("error") or "Framework not initialized."
+            "error": f"Framework not ready. Current step: {framework_status.get('step')}. Loading: {framework_status.get('loading')}",
         }), 503
 
     try:
@@ -165,9 +180,7 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"🚀 Binding to 0.0.0.0:{port}")
 
-    # Start framework loading in background AFTER Flask binds to port
     t = threading.Thread(target=initialize_framework, daemon=True)
     t.start()
 
-    # Flask starts immediately — port is bound before any imports run
     app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
