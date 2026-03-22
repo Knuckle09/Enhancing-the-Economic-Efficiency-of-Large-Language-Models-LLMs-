@@ -1,5 +1,5 @@
 """
-Nimbus AI Backend - Gemini-powered version
+Nimbus AI Backend - Groq-powered (free & fast)
 """
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -13,44 +13,56 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "").strip()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-logger.info(f"✅ Flask started. Gemini key present: {bool(GEMINI_API_KEY)} (length: {len(GEMINI_API_KEY)})")
+
+logger.info(f"✅ Flask started. Groq key: {bool(GROQ_API_KEY)} | Gemini key: {bool(GEMINI_API_KEY)}")
+
+
+def optimize_with_groq(prompt):
+    import requests
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama3-8b-8192",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a prompt optimizer. Rewrite the user's prompt in fewer words while keeping the exact same meaning. Return ONLY the rewritten prompt, nothing else."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "max_tokens": 500,
+        "temperature": 0.3
+    }
+    response = requests.post(url, json=payload, headers=headers, timeout=30)
+    logger.info(f"Groq response status: {response.status_code}")
+    response.raise_for_status()
+    data = response.json()
+    return data["choices"][0]["message"]["content"].strip()
 
 
 def optimize_with_gemini(prompt):
     import requests
-    # Try multiple model names in case one fails
-    models = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-        "gemini-pro"
-    ]
-    last_error = None
-    for model in models:
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
-            payload = {
-                "contents": [{
-                    "parts": [{
-                        "text": f"Rewrite this prompt in fewer words while keeping the same meaning. Return ONLY the rewritten prompt, nothing else:\n\n{prompt}"
-                    }]
-                }]
-            }
-            response = requests.post(url, json=payload, timeout=30)
-            logger.info(f"Gemini {model} response status: {response.status_code}")
-            if response.status_code == 200:
-                data = response.json()
-                optimized = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                logger.info(f"✅ Gemini {model} succeeded")
-                return optimized, model
-            else:
-                logger.warning(f"Gemini {model} failed: {response.status_code} - {response.text[:200]}")
-                last_error = f"{response.status_code}: {response.text[:200]}"
-        except Exception as e:
-            logger.warning(f"Gemini {model} exception: {e}")
-            last_error = str(e)
-    raise Exception(f"All Gemini models failed. Last error: {last_error}")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+    payload = {
+        "contents": [{
+            "parts": [{
+                "text": f"Rewrite this prompt in fewer words while keeping the same meaning. Return ONLY the rewritten prompt:\n\n{prompt}"
+            }]
+        }]
+    }
+    response = requests.post(url, json=payload, timeout=30)
+    logger.info(f"Gemini response status: {response.status_code}")
+    response.raise_for_status()
+    data = response.json()
+    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
 
 
 def classify_prompt(prompt):
@@ -76,11 +88,11 @@ def simple_optimize(prompt):
 
 @app.route('/', methods=['GET'])
 def index():
+    mode = "groq" if GROQ_API_KEY else ("gemini" if GEMINI_API_KEY else "heuristic")
     return jsonify({
         "name": "Nimbus AI API",
         "status": "running",
-        "mode": "gemini" if GEMINI_API_KEY else "heuristic",
-        "gemini_key_length": len(GEMINI_API_KEY),
+        "mode": mode,
         "framework_initialized": True,
         "timestamp": datetime.now().isoformat()
     })
@@ -97,12 +109,13 @@ def health():
 
 @app.route('/api/status', methods=['GET'])
 def status():
+    mode = "groq" if GROQ_API_KEY else ("gemini" if GEMINI_API_KEY else "heuristic")
     return jsonify({
         "initialized": True,
         "loading": False,
         "error": None,
         "step": "ready",
-        "mode": "gemini" if GEMINI_API_KEY else "heuristic",
+        "mode": mode,
         "timestamp": datetime.now().isoformat()
     })
 
@@ -124,27 +137,34 @@ def process_prompt_api():
     try:
         original_tokens = len(prompt.split())
         category = classify_prompt(prompt)
-        gemini_error = None
+        strategy = "heuristic"
+        optimized = simple_optimize(prompt)
 
-        if GEMINI_API_KEY:
+        # Try Groq first (free), then Gemini, then heuristic
+        if GROQ_API_KEY:
             try:
-                optimized, model_used = optimize_with_gemini(prompt)
-                strategy = f"gemini-{model_used}"
+                optimized = optimize_with_groq(prompt)
+                strategy = "groq-llama3"
+                logger.info("✅ Groq succeeded")
             except Exception as e:
-                gemini_error = str(e)
-                logger.error(f"Gemini failed: {gemini_error}")
-                optimized = simple_optimize(prompt)
-                strategy = "heuristic-fallback"
-        else:
-            optimized = simple_optimize(prompt)
-            strategy = "heuristic"
-            gemini_error = "No API key set"
+                logger.error(f"Groq failed: {e}")
+                if GEMINI_API_KEY:
+                    try:
+                        optimized = optimize_with_gemini(prompt)
+                        strategy = "gemini-fallback"
+                    except Exception as e2:
+                        logger.error(f"Gemini also failed: {e2}")
+        elif GEMINI_API_KEY:
+            try:
+                optimized = optimize_with_gemini(prompt)
+                strategy = "gemini"
+            except Exception as e:
+                logger.error(f"Gemini failed: {e}")
 
         optimized_tokens = len(optimized.split())
-        reduction = round((1 - optimized_tokens / max(original_tokens, 1)) * 100, 1)
-        reduction = max(0, reduction)
+        reduction = max(0, round((1 - optimized_tokens / max(original_tokens, 1)) * 100, 1))
 
-        response = {
+        return jsonify({
             "success": True,
             "data": {
                 "original_prompt": prompt,
@@ -156,10 +176,7 @@ def process_prompt_api():
             },
             "processing_time": round(time.time() - start_time, 2),
             "timestamp": datetime.now().isoformat()
-        }
-        if gemini_error:
-            response["gemini_error"] = gemini_error
-        return jsonify(response)
+        })
 
     except Exception as e:
         import traceback
