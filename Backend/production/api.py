@@ -1,5 +1,5 @@
 """
-Nimbus AI Backend - Groq-powered
+Nimbus AI Backend - Groq-powered with full response generation
 """
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -16,45 +16,63 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "").strip()
 logger.info(f"✅ Flask started. Groq key present: {bool(GROQ_API_KEY)}")
 
+GROQ_MODELS = ["llama-3.1-8b-instant", "llama3-8b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"]
 
-def optimize_with_groq(prompt):
+
+def call_groq(messages, max_tokens=300):
+    """Call Groq API with given messages, try models in order."""
     import requests
-    url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
-    # Use correct current Groq model names
-    models = ["llama-3.1-8b-instant", "llama3-8b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"]
     last_error = None
-    for model in models:
+    for model in GROQ_MODELS:
         try:
             payload = {
                 "model": model,
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are a prompt optimizer. Rewrite the user's prompt in fewer words while keeping the exact same meaning. Return ONLY the rewritten prompt, nothing else. No explanation."
-                    },
-                    {"role": "user", "content": prompt}
-                ],
-                "max_tokens": 300,
+                "messages": messages,
+                "max_tokens": max_tokens,
                 "temperature": 0.3
             }
-            response = requests.post(url, json=payload, headers=headers, timeout=30)
-            logger.info(f"Groq {model} status: {response.status_code}")
+            response = requests.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                json=payload, headers=headers, timeout=30
+            )
             if response.status_code == 200:
-                data = response.json()
-                result = data["choices"][0]["message"]["content"].strip()
-                logger.info(f"✅ Groq {model} succeeded")
-                return result, model
+                content = response.json()["choices"][0]["message"]["content"].strip()
+                return content, model
             else:
-                logger.warning(f"Groq {model} failed: {response.status_code} - {response.text[:200]}")
                 last_error = f"{response.status_code}: {response.text[:100]}"
+                logger.warning(f"Groq {model} failed: {last_error}")
         except Exception as e:
-            logger.warning(f"Groq {model} exception: {e}")
             last_error = str(e)
+            logger.warning(f"Groq {model} exception: {e}")
     raise Exception(f"All Groq models failed. Last: {last_error}")
+
+
+def optimize_prompt(prompt):
+    """Use Groq to shorten the prompt."""
+    optimized, model = call_groq([
+        {
+            "role": "system",
+            "content": "You are a prompt optimizer. Rewrite the user's prompt in fewer words while keeping the exact same meaning. Return ONLY the rewritten prompt, nothing else."
+        },
+        {"role": "user", "content": prompt}
+    ], max_tokens=300)
+    return optimized, model
+
+
+def generate_response(prompt):
+    """Use Groq to generate a response to the optimized prompt."""
+    response, model = call_groq([
+        {
+            "role": "system",
+            "content": "You are a helpful assistant. Answer the user's question clearly and concisely."
+        },
+        {"role": "user", "content": prompt}
+    ], max_tokens=1024)
+    return response, model
 
 
 def classify_prompt(prompt):
@@ -120,6 +138,7 @@ def process_prompt_api():
 
     data = request.get_json()
     prompt = data.get('prompt', '').strip()
+    include_response = data.get('include_response', True)
 
     if not prompt:
         return jsonify({"success": False, "error": "Prompt is required"}), 400
@@ -129,14 +148,27 @@ def process_prompt_api():
         category = classify_prompt(prompt)
         strategy = "heuristic"
         optimized = simple_optimize(prompt)
+        llm_response = None
+        model_used = None
 
         if GROQ_API_KEY:
+            # Step 1: Optimize the prompt
             try:
-                optimized, model_used = optimize_with_groq(prompt)
-                strategy = f"groq-{model_used}"
+                optimized, opt_model = optimize_prompt(prompt)
+                strategy = f"groq-{opt_model}"
+                logger.info(f"✅ Prompt optimized with {opt_model}")
             except Exception as e:
-                logger.error(f"Groq failed: {e}")
+                logger.error(f"Optimization failed: {e}")
                 strategy = "heuristic-fallback"
+
+            # Step 2: Generate response from optimized prompt
+            if include_response:
+                try:
+                    llm_response, model_used = generate_response(optimized)
+                    logger.info(f"✅ Response generated with {model_used}")
+                except Exception as e:
+                    logger.error(f"Response generation failed: {e}")
+                    llm_response = f"Could not generate response: {str(e)}"
 
         optimized_tokens = len(optimized.split())
         reduction = max(0, round((1 - optimized_tokens / max(original_tokens, 1)) * 100, 1))
@@ -146,6 +178,8 @@ def process_prompt_api():
             "data": {
                 "original_prompt": prompt,
                 "optimized_prompt": optimized,
+                "response": llm_response,
+                "selected_llm": model_used or "groq",
                 "strategy_used": strategy,
                 "token_reduction_percent": reduction,
                 "similarity": 0.92,
