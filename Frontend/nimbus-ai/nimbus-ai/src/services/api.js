@@ -1,7 +1,10 @@
 // services/api.js
 // Base API configuration and utilities
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://enhancing-the-economic-efficiency-of.onrender.com";
+const rawBase =
+  import.meta.env.VITE_API_URL ||
+  "https://enhancing-the-economic-efficiency-of.onrender.com";
+const API_BASE_URL = String(rawBase).replace(/\/+$/, "");
 
 class ApiService {
   constructor() {
