@@ -1,7 +1,7 @@
 # Production Requirements for RL-Based Text Optimization Framework
 # Last updated: September 30, 2025
 
-pyhton==3.12.10
+
 
 # Core ML and RL libraries
 torch>=1.13.0
