@@ -5,7 +5,7 @@ services:
     rootDir: Backend/production
 
     buildCommand: pip install -r requirements-cloud.txt
-    startCommand: python cloud_api.py
+    startCommand: gunicorn --workers 1 --threads 4 --bind 0.0.0.0:$PORT cloud_api:app
     healthCheckPath: /api/health
 
     plan: free
