@@ -170,10 +170,27 @@ def process():
             # Recent google-genai versions can close an inline temporary client
             # before the HTTP request completes.
             client = gemini_client()
-            response = client.models.generate_content(
-                model=GEMINI_MODELS[chosen],
-                contents=optimized,
-            )
+            try:
+                response = client.models.generate_content(
+                    model=GEMINI_MODELS[chosen],
+                    contents=optimized,
+                )
+            except Exception as exc:
+                provider_error = str(exc)
+                is_quota_error = "resource_exhausted" in provider_error.lower() or "429" in provider_error
+                if chosen != "gemini-pro" or not is_quota_error:
+                    raise
+
+                # Gemini Pro may have no free-tier quota for this API key. Give
+                # the user a working answer through Flash and make that fallback
+                # explicit in the chat instead of returning an empty response.
+                app.logger.info("Gemini Pro quota unavailable; retrying with Gemini Flash")
+                chosen = "gemini-flash"
+                response = client.models.generate_content(
+                    model=GEMINI_MODELS[chosen],
+                    contents=optimized,
+                )
+
             generated_text = (response.text or "").strip()
             if not generated_text:
                 app.logger.error("Gemini returned an empty response for model %s", GEMINI_MODELS[chosen])
@@ -182,11 +199,22 @@ def process():
                     "error": "Gemini returned an empty response. Please try rephrasing your prompt.",
                 }), 502
             result["response"] = generated_text
+            result["selected_llm"] = chosen
+            if chosen != selected:
+                result["model_fallback_notice"] = (
+                    "Gemini Pro is unavailable under the current API quota, "
+                    "so this reply was generated with Gemini Flash."
+                )
         except Exception as exc:
             app.logger.exception("Gemini generation failed")
             message = str(exc)
             if "not configured" in message.lower():
                 return jsonify({"success": False, "error": message}), 503
+            if "resource_exhausted" in message.lower() or "429" in message:
+                return jsonify({
+                    "success": False,
+                    "error": "Gemini quota is currently unavailable for this model. Select Gemini Flash or check the API key's quota and billing settings.",
+                }), 429
             return jsonify({
                 "success": False,
                 "error": "Gemini could not generate a response. Please retry in a moment.",

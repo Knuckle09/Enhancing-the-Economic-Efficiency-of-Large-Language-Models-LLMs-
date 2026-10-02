@@ -122,7 +122,10 @@ const includeResponse = true;
       assistantText = `⚠️ LLM error, but prompt was optimized.\n${data.response_error}`;
       isWarning = true;
     } else if (data.response) {
-      assistantText = data.response;
+      const fallbackNotice = data.model_fallback_notice
+        ? `ℹ️ ${data.model_fallback_notice}\n\n`
+        : '';
+      assistantText = `${fallbackNotice}${data.response}`;
     } else {
       assistantText = '✅ Prompt optimized successfully (no LLM response).';
     }
