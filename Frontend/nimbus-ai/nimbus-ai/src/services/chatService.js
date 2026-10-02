@@ -10,21 +10,20 @@ function generateId() {
 
 // Determine prompt category for API
 function getPromptCategory(prompt) {
-  const lowerPrompt = prompt.toLowerCase();
+  const lowerPrompt = prompt.trim().toLowerCase();
+  const asksForCode = /\b(write|create|implement|build|debug|fix|refactor|review|generate|complete|optimize)\b/i.test(lowerPrompt);
+  const namesCode = /\b(code|coding|programming|script|program|api endpoint|sql query)\b/i.test(lowerPrompt);
+  const asksForCallable = /\b(write|create|implement|build|debug|fix|refactor|review|generate|complete)\b/i.test(lowerPrompt)
+    && /\b(function|method|class)\b/i.test(lowerPrompt);
+
   if (
-    lowerPrompt.includes('code') ||
-    lowerPrompt.includes('function') ||
-    lowerPrompt.includes('python') ||
-    lowerPrompt.includes('javascript') ||
-    lowerPrompt.includes('program')
+    lowerPrompt.includes('```') ||
+    /\b(python|javascript|typescript|java|c\+\+|c#|rust|golang|sql|bash|powershell)\b/i.test(lowerPrompt) ||
+    (asksForCode && namesCode) ||
+    asksForCallable
   ) {
     return 'coding';
-  } else if (
-    lowerPrompt.includes('calculate') ||
-    lowerPrompt.includes('formula') ||
-    lowerPrompt.includes('math') ||
-    lowerPrompt.includes('equation')
-  ) {
+  } else if (/\b(calculate|solve|compute|derive|prove|integrate|differentiate|equation|math|mathematics|integral|derivative)\b/i.test(lowerPrompt)) {
     return 'math';
   } else {
     return 'generic';
@@ -34,9 +33,9 @@ function getPromptCategory(prompt) {
 // Determine prompt type for UI display
 function getPromptType(prompt) {
   const lowerPrompt = prompt.toLowerCase();
-  if (lowerPrompt.includes('calculate') || lowerPrompt.includes('formula')) {
+  if (/\b(calculate|solve|compute|derive|prove|integrate|differentiate|equation|formula|math)\b/i.test(lowerPrompt)) {
     return PROMPT_TYPES.MATH;
-  } else if (lowerPrompt.includes('code') || lowerPrompt.includes('function')) {
+  } else if (getPromptCategory(prompt) === 'coding') {
     return PROMPT_TYPES.CODE;
   } else if (lowerPrompt.includes('story') || lowerPrompt.includes('imagine')) {
     return PROMPT_TYPES.CREATIVE;

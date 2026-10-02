@@ -7,6 +7,7 @@ limits while preserving the frontend's API contract.
 
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
+from functools import lru_cache
 import os
 import re
 import time
@@ -45,14 +46,39 @@ def compact_prompt(prompt):
 
 
 def classify(prompt):
-    text = prompt.lower()
-    if any(word in text for word in ("code", "python", "function", "debug", "program", "api")):
+    text = prompt.strip().lower()
+
+    # Avoid substring matches such as "functionality" and only classify
+    # ambiguous terms like "function" when the prompt asks for code work.
+    if "```" in text or re.search(
+        r"\b(?:python|javascript|typescript|java|c\+\+|c#|rust|golang|sql|bash|powershell)\b",
+        text,
+    ):
         return "coding"
-    if any(word in text for word in ("calculate", "equation", "math", "solve", "proof", "integral")):
+
+    asks_for_code = re.search(
+        r"\b(?:write|create|implement|build|debug|fix|refactor|review|generate|complete|optimize)\b",
+        text,
+    )
+    names_code = re.search(
+        r"\b(?:code|coding|programming|script|program|api endpoint|sql query)\b",
+        text,
+    )
+    asks_for_callable = re.search(
+        r"\b(?:write|create|implement|build|debug|fix|refactor|review|generate|complete)\b",
+        text,
+    ) and re.search(r"\b(?:function|method|class)\b", text)
+    if (asks_for_code and names_code) or asks_for_callable:
+        return "coding"
+
+    if re.search(r"\b(?:calculate|solve|compute|derive|prove|integrate|differentiate)\b", text) or re.search(
+        r"\b(?:equation|math|mathematics|integral|derivative)\b", text
+    ):
         return "math"
     return "generic"
 
 
+@lru_cache(maxsize=1)
 def gemini_client():
     key = os.getenv("GEMINI_API_KEY")
     if not key:
@@ -140,14 +166,32 @@ def process():
 
     if data.get("include_response", True):
         try:
-            response = gemini_client().models.generate_content(
+            # Keep a strong reference to the SDK client for the full request.
+            # Recent google-genai versions can close an inline temporary client
+            # before the HTTP request completes.
+            client = gemini_client()
+            response = client.models.generate_content(
                 model=GEMINI_MODELS[chosen],
                 contents=optimized,
             )
-            result["response"] = response.text or ""
+            generated_text = (response.text or "").strip()
+            if not generated_text:
+                app.logger.error("Gemini returned an empty response for model %s", GEMINI_MODELS[chosen])
+                return jsonify({
+                    "success": False,
+                    "error": "Gemini returned an empty response. Please try rephrasing your prompt.",
+                }), 502
+            result["response"] = generated_text
         except Exception as exc:
-            result["response_error"] = str(exc)
-            result["response"] = f"Gemini request failed: {exc}"
+            app.logger.exception("Gemini generation failed")
+            message = str(exc)
+            if "not configured" in message.lower():
+                return jsonify({"success": False, "error": message}), 503
+            return jsonify({
+                "success": False,
+                "error": "Gemini could not generate a response. Please retry in a moment.",
+                "detail": message,
+            }), 502
 
     return jsonify({
         "success": True,

@@ -12,10 +12,10 @@ class ApiService {
     console.log("API Service initialized with URL:", this.baseURL);
   }
 
-async request(endpoint, options = {}) {
+  async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000);
+    const timeout = setTimeout(() => controller.abort(), 120000);
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -27,15 +27,26 @@ async request(endpoint, options = {}) {
     try {
       const response = await fetch(url, config);
       clearTimeout(timeout);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      let body;
+      try {
+        body = await response.json();
+      } catch {
+        body = null;
       }
-      return await response.json();
+      if (!response.ok || body?.success === false) {
+        throw new Error(
+          body?.error || body?.detail || `The server could not complete the request (HTTP ${response.status}).`
+        );
+      }
+      if (!body) {
+        throw new Error('The server returned an invalid response. Please retry.');
+      }
+      return body;
     } catch (error) {
       clearTimeout(timeout);
       console.error('API request failed:', error);
       if (error.name === 'AbortError') {
-        throw new Error('Server is waking up, please try again in a moment.');
+        throw new Error('The response took too long. The server may be waking up; please retry.');
       }
       throw error;
     }
