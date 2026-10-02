@@ -3,7 +3,7 @@
 
 const rawBase =
   import.meta.env.VITE_API_URL ||
-  "https://enhancing-the-economic-efficiency-of.onrender.com";
+  "https://llm-efficiency-backend.onrender.com";
 const API_BASE_URL = String(rawBase).replace(/\/+$/, "");
 
 class ApiService {

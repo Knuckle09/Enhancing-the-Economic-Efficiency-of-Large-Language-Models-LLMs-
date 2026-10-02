@@ -7,6 +7,8 @@ You can **directly replace your README.md** with this.
 
 # 🚀 Nimbus AI
 
+**Live app:** [GitHub Pages](https://knuckle09.github.io/Enhancing-the-Economic-Efficiency-of-Large-Language-Models-LLMs-/) · **Local setup and deployment:** [Backend/production/RUNNING_AND_DEPLOYING.md](Backend/production/RUNNING_AND_DEPLOYING.md)
+
 ## Enhancing the Economic Efficiency of Large Language Models (LLMs)
 
 **Nimbus AI** is a **reinforcement-learning powered optimization framework** designed to reduce the **operational cost of Large Language Models** while preserving semantic quality.

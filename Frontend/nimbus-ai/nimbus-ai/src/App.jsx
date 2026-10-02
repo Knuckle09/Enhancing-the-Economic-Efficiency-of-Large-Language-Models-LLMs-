@@ -6,7 +6,7 @@ import Aboutme from './Pages/Aboutme.jsx';
 
 function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <div className="w-full min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />

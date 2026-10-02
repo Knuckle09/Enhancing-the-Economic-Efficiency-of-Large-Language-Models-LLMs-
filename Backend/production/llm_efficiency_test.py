@@ -370,11 +370,10 @@ class LLMEfficiencyTest:
         
         self.gemini_available = False
         try:
-            import google.generativeai as genai
+            from google import genai
             gemini_api_key = os.getenv('GEMINI_API_KEY')
             if gemini_api_key:
-                genai.configure(api_key=gemini_api_key)
-                self.gemini_client = genai
+                self.gemini_client = genai.Client(api_key=gemini_api_key)
                 self.gemini_available = True
                 print("✅ Gemini API initialized successfully")
             else:
@@ -382,7 +381,7 @@ class LLMEfficiencyTest:
                 print("   Set it with: export GEMINI_API_KEY='your-api-key' (Linux/Mac)")
                 print("   Or: $env:GEMINI_API_KEY='your-api-key' (Windows PowerShell)")
         except ImportError:
-            print("⚠️ google-generativeai not installed. Install with: pip install google-generativeai")
+            print("⚠️ google-genai not installed. Install with: pip install google-genai")
         except Exception as e:
             print(f"⚠️ Gemini initialization failed: {e}")
 
@@ -432,16 +431,12 @@ class LLMEfficiencyTest:
             if not self.gemini_available:
                 return "Error: Gemini API not available. Please set GEMINI_API_KEY environment variable."
             try:
-                model = self.gemini_client.GenerativeModel(llm_info["model"])
-                generation_config = {
-                    "max_output_tokens": max_tokens,
-                    "temperature": 0.7,
-                }
-                response = model.generate_content(
-                    prompt,
-                    generation_config=generation_config
+                response = self.gemini_client.models.generate_content(
+                    model=llm_info["model"],
+                    contents=prompt,
+                    config={"max_output_tokens": max_tokens, "temperature": 0.7},
                 )
-                return response.text
+                return response.text or ""
             except Exception as e:
                 print(f"Gemini generation failed: {e}")
                 return f"Error: {str(e)}"

@@ -3,6 +3,8 @@ import { Send } from 'lucide-react';
 import { useChat } from '../../contexts/ChatContext.jsx';
 import IconButton from '../common/IconButton.jsx';
 
+const showOllamaModels = import.meta.env.VITE_ENABLE_OLLAMA_MODELS === 'true';
+
 const ChatInput = () => {
   const {
   currentPrompt,
@@ -99,12 +101,14 @@ const ChatInput = () => {
               <option value="gemini-flash">Gemini Flash – fast & efficient</option>
             </optgroup>
 
-            <optgroup label="💻 Local Models">
-              <option value="codellama">CodeLlama – coding specialist</option>
-              <option value="qwen-math">Qwen Math – math specialist</option>
-              <option value="tinyllama">TinyLlama – fast general purpose</option>
-              <option value="phi-3">Phi-3 – efficient model</option>
-            </optgroup>
+            {showOllamaModels && (
+              <optgroup label="💻 Local Ollama Models">
+                <option value="codellama">CodeLlama – coding specialist</option>
+                <option value="qwen-math">Qwen Math – math specialist</option>
+                <option value="tinyllama">TinyLlama – fast general purpose</option>
+                <option value="phi-3">Phi-3 – efficient model</option>
+              </optgroup>
+            )}
           </select>
         )}
       </div>

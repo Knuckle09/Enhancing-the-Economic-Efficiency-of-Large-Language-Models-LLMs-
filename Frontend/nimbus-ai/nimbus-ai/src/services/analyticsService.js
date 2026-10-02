@@ -129,7 +129,7 @@ export class AnalyticsService {
   // Get available strategies from API
   static async getStrategies() {
     try {
-      const response = await apiService.get('/strategies');
+      const response = await apiService.get('/api/strategies');
       return { success: true, data: response };
     } catch (error) {
       console.error('Failed to fetch strategies:', error);
@@ -140,7 +140,7 @@ export class AnalyticsService {
   // Health check
   static async checkHealth() {
     try {
-      const response = await apiService.get('/health');
+      const response = await apiService.get('/api/health');
       return { success: true, data: response };
     } catch (error) {
       console.error('Health check failed:', error);
@@ -151,7 +151,7 @@ export class AnalyticsService {
   // Get API status
   static async getStatus() {
     try {
-      const response = await apiService.get('/status');
+      const response = await apiService.get('/api/status');
       return { success: true, data: response };
     } catch (error) {
       console.error('Status check failed:', error);

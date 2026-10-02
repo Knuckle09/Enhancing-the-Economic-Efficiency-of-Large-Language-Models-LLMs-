@@ -18,12 +18,12 @@ def set_api_key(api_key):
     print("✅ Gemini API key set for current session")
     print("\nTo make it permanent:")
     print("\nLinux/Mac:")
-    print(f'  echo "export GEMINI_API_KEY=\'{api_key}\'" >> ~/.bashrc')
+    print('  export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"')
     print("  source ~/.bashrc")
     print("\nWindows PowerShell:")
-    print(f'  [System.Environment]::SetEnvironmentVariable("GEMINI_API_KEY", "{api_key}", "User")')
+    print('  $env:GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"')
     print("\nWindows Command Prompt:")
-    print(f'  setx GEMINI_API_KEY "{api_key}"')
+    print('  set GEMINI_API_KEY=YOUR_GEMINI_API_KEY')
 
 
 def test_gemini_connection():
@@ -38,20 +38,19 @@ def test_gemini_connection():
         return False
     
     try:
-        import google.generativeai as genai
-        print("✅ google-generativeai package is installed")
+        from google import genai
+        print("✅ google-genai package is installed")
     except ImportError:
-        print("❌ google-generativeai package not found")
-        print("Install it with: pip install google-generativeai")
+        print("❌ google-genai package not found")
+        print("Install it with: pip install google-genai")
         return False
     
     try:
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
         print("✅ API key configured successfully")
         
         print("\n🧪 Testing with a simple prompt...")
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content("Say hello!")
+        response = client.models.generate_content(model='gemini-2.5-flash', contents="Say hello!")
         
         print("✅ Gemini API is working!")
         print(f"\nTest response: {response.text[:100]}...")
@@ -73,7 +72,7 @@ def show_available_models():
     print("\n1. gemini-pro")
     print("   - Best for: Text generation, coding, math, reasoning")
     print("   - Alias: 'gemini'")
-    print("\n2. gemini-1.5-flash")
+    print("\n2. gemini-2.5-flash")
     print("   - Best for: Fast responses, lighter tasks")
     print("   - Alias: 'gemini-flash'")
     print("\nUsage in code:")

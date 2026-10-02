@@ -4,8 +4,11 @@ services:
     env: python
     rootDir: Backend/production
 
-    buildCommand: pip install -r requirements.txt
-    startCommand: python api.py
+    buildCommand: pip install -r requirements-cloud.txt
+    startCommand: python cloud_api.py
     healthCheckPath: /api/health
 
     plan: free
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
