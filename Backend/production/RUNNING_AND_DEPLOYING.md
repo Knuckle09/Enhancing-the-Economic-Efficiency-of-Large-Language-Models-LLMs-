@@ -13,8 +13,11 @@ Requirements: Python 3.10–3.12, Node.js 20 or newer, and Ollama if you want lo
    ollama pull qwen2-math:latest
    ollama pull phi3:latest
    ollama pull tinyllama:latest
+   ollama pull nomic-embed-text
    ollama list
    ```
+
+   `nomic-embed-text` is optional and enables the report-aligned semantic similarity metric for local Ollama requests. Ollama's embedding API detects it automatically; another embedding model can be selected with `OLLAMA_EMBEDDING_MODEL`.
 
 2. Open PowerShell at the repository root and install the API dependencies:
 
@@ -58,9 +61,10 @@ Requirements: Python 3.10–3.12, Node.js 20 or newer, and Ollama if you want lo
 - Automatic model routing, manual overrides, local Ollama, Gemini, and quota fallback from Pro to Flash.
 - Recent conversation turns sent to the model and up to 60 chat messages saved in this browser's local storage.
 - A bounded near-duplicate response cache and thumbs-up/down feedback that adjusts automatic model routing while the API process is running.
-- Analytics from saved replies: token reduction, text overlap proxy, cost estimates, strategy results, per-model response time, and prompt details.
+- Analytics from saved replies: token reduction, embedding-based semantic similarity, estimated cost savings, token totals, model utilization, response time, strategy results, and prompt details.
+- A separate report benchmark panel shows the study's 30% token reduction, 25-35% cost savings, similarity above 0.90 (0.92 in the comparison table), and 22% multi-turn coherence improvement. These are reported study results, not live session readings.
 
-The lightweight optimizer avoids rewriting code and uses meaning-preserving cleanup rules. Token counts are estimates. The displayed text-overlap score is not a transformer embedding score. Gemini cost is an estimate at standard paid-tier rates; free-tier credits and actual billing can differ. Ollama inference has no API list-price estimate. The response cache and routing feedback are held in API memory and reset when the service restarts. Chat content stays in this browser and is sent to the selected model provider when you submit a prompt.
+The lightweight optimizer avoids rewriting code and uses meaning-preserving cleanup rules. Gemini token counts use the provider tokenizer; Ollama prompt counts use an approximate four-characters-per-token estimate. Gemini requests use Gemini text embeddings for semantic similarity, while local Ollama requests use an installed Ollama embedding model; the score is shown as not measured if the embedding service is unavailable or a prompt exceeds the live embedding limit. Gemini cost and embedding cost are estimates at standard paid-tier list prices; free-tier credits and actual billing can differ. Ollama inference has no API list-price estimate. The response cache and routing feedback are held in API memory and reset when the service restarts. Chat content stays in this browser and is sent to the selected model provider when you submit a prompt.
 
 ## Hosted version
 

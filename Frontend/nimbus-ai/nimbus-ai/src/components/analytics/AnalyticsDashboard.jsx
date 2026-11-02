@@ -11,6 +11,7 @@ import PromptDetailsCard from './PromptDetailsCard.jsx';
 import TokenDistributionChart from './TokenDistributionChart.jsx';
 import StrategyPerformanceChart from './StrategyPerformanceChart.jsx';
 import ModelPerformanceChart from './ModelPerformanceChart.jsx';
+import ReportBenchmarksCard from './ReportBenchmarksCard.jsx';
 
 const AnalyticsDashboard = () => {
   const { 
@@ -100,6 +101,8 @@ const AnalyticsDashboard = () => {
             <span>Back to Chat</span>
           </button>
         </div>
+
+        <ReportBenchmarksCard />
 
         {/* Summary Cards */}
         <SummaryCards summary={summary} />

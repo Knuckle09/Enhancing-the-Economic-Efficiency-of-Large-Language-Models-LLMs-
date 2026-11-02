@@ -15,25 +15,26 @@ const ModelPerformanceChart = ({ prompts = [] }) => {
     return result;
   }, {});
   const rows = Object.values(grouped).sort((a, b) => b.replies - a.replies);
+  const totalReplies = rows.reduce((total, row) => total + row.replies, 0);
 
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
       <div className="flex items-center gap-2 mb-2">
         <Cpu className="w-5 h-5 text-blue-400" />
-        <h3 className="text-lg font-semibold text-gray-200">Model Performance</h3>
+        <h3 className="text-lg font-semibold text-gray-200">Model Utilization &amp; Performance</h3>
       </div>
-      <p className="text-xs text-gray-400 mb-4">Real response times and optional user ratings</p>
+      <p className="text-xs text-gray-400 mb-4">Live routing share, end-to-end response time, and optional user ratings</p>
       {rows.length ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="text-xs uppercase text-gray-400 border-b border-gray-700">
-              <tr><th className="py-3 pr-3">Model</th><th className="py-3 px-3">Replies</th><th className="py-3 px-3">Avg. time</th><th className="py-3 pl-3">Useful ratings</th></tr>
+              <tr><th className="py-3 pr-3">Model</th><th className="py-3 px-3">Usage</th><th className="py-3 px-3">Avg. time</th><th className="py-3 pl-3">Useful ratings</th></tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.model} className="border-b border-gray-700/60 last:border-0">
                   <td className="py-3 pr-3 text-blue-300 font-medium">{row.model}</td>
-                  <td className="py-3 px-3 text-gray-200">{row.replies}</td>
+                  <td className="py-3 px-3 text-gray-200">{row.replies} ({((row.replies / totalReplies) * 100).toFixed(0)}%)</td>
                   <td className="py-3 px-3 text-gray-200">{(row.time / row.replies).toFixed(2)}s</td>
                   <td className="py-3 pl-3 text-gray-200">{row.rated ? `${row.positive}/${row.rated}` : 'Not rated'}</td>
                 </tr>

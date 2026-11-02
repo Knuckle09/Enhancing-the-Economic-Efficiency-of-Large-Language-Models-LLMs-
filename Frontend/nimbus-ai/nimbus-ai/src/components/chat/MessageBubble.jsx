@@ -72,7 +72,7 @@ const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing, onFeedback }) =
           <div className="text-sm leading-relaxed">{message.content}</div>
 
           {/* Metrics for assistant messages */}
-          {isAssistant && !message.isError && (message.tokenReductionPercent || message.similarity) && (
+          {isAssistant && !message.isError && (message.tokenReductionPercent !== undefined || message.similarity !== undefined) && (
             <div className="mt-3 pt-3 border-t border-gray-700 grid grid-cols-2 gap-3">
               {message.tokenReductionPercent !== undefined && (
                 <div className="flex items-center gap-2 text-xs">
@@ -87,9 +87,13 @@ const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing, onFeedback }) =
                 <div className="flex items-center gap-2 text-xs">
                   <Target className="w-3 h-3 text-green-400" />
                   <span className="text-gray-400">
-                    Text preservation: <span className="text-green-400 font-semibold">{(message.similarity * 100).toFixed(1)}%</span>
+                    Semantic similarity: <span className="text-green-400 font-semibold">{Number.isFinite(message.similarity) ? `${(message.similarity * 100).toFixed(1)}%` : 'Not measured'}</span>
                   </span>
                 </div>
+              )}
+
+              {message.similarityMethod && (
+                <div className="text-xs text-gray-500 col-span-2">Similarity method: {message.similarityMethod}</div>
               )}
 
               {message.processingTime !== undefined && (

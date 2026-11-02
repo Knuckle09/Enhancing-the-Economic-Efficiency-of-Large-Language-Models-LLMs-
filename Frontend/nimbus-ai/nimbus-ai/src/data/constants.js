@@ -40,15 +40,15 @@ export const PROMPT_CATEGORIES = {
 export const STRATEGY_DESCRIPTIONS = {
   aggressive: {
     label: 'Aggressive',
-    description: '35% token reduction, 85% similarity',
+    description: '35% token reduction, 90% semantic similarity',
     target_reduction: 35,
-    min_similarity: 0.85,
+    min_similarity: 0.90,
   },
   balanced: {
     label: 'Balanced',
-    description: '30% token reduction, 85% similarity',
+    description: '30% token reduction, 90% semantic similarity',
     target_reduction: 30,
-    min_similarity: 0.85,
+    min_similarity: 0.90,
   },
   conservative: {
     label: 'Conservative',
@@ -56,6 +56,18 @@ export const STRATEGY_DESCRIPTIONS = {
     target_reduction: 15,
     min_similarity: 0.90,
   },
+};
+
+// Values reported by the G2 final report. These are historical study results,
+// shown separately from the live metrics calculated for the current session.
+export const REPORT_BENCHMARKS = {
+  tokenReductionPercent: 30,
+  costSavingsRangePercent: [25, 35],
+  semanticSimilarityMinimum: 0.90,
+  semanticSimilarityReported: 0.92,
+  multiTurnCoherenceImprovementPercent: 22,
+  singleTurnPrompts: 300,
+  multiTurnConversations: 80,
 };
 
 // LLM mappings (from your API /strategies endpoint)

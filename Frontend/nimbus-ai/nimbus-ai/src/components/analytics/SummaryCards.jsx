@@ -1,88 +1,87 @@
-// components/analytics/SummaryCards.jsx
 import React from 'react';
-import { Target, Activity, Zap, TrendingDown } from 'lucide-react';
+import { Activity, Clock, DollarSign, MessageSquare, TrendingDown, Zap } from 'lucide-react';
 
 const SummaryCards = ({ summary }) => {
   if (!summary) return null;
 
-  // Safely convert values to numbers
-  const tokenReduction = Number(
-  summary.token_reduction_percent ?? 0
-);
+  const reduction = Number(summary.token_reduction_percent || 0);
+  const similarity = Number.isFinite(summary.similarity) ? `${(summary.similarity * 100).toFixed(1)}%` : 'N/A';
+  const savings = Number.isFinite(summary.cost?.estimated_savings_percent)
+    ? `${summary.cost.estimated_savings_percent.toFixed(1)}%`
+    : 'N/A';
+  const tokensSaved = Number(summary.tokens?.tokens_saved || 0);
+  const cards = [
+    {
+      label: 'Token Reduction',
+      value: `${reduction.toFixed(1)}%`,
+      note: 'Live session average',
+      icon: Zap,
+      color: 'blue',
+    },
+    {
+      label: 'Semantic Similarity',
+      value: similarity,
+      note: `${summary.semantic_similarity_samples || 0} embedding scores`,
+      icon: Activity,
+      color: 'green',
+    },
+    {
+      label: 'Estimated Cost Savings',
+      value: savings,
+      note: summary.cost ? `${summary.cost.requests_included} Gemini requests` : 'Gemini cost unavailable',
+      icon: DollarSign,
+      color: 'yellow',
+    },
+    {
+      label: 'Tokens Saved',
+      value: tokensSaved.toLocaleString(),
+      note: 'Live session total',
+      icon: TrendingDown,
+      color: 'purple',
+    },
+    {
+      label: 'Avg. Processing Time',
+      value: `${Number(summary.average_processing_time || 0).toFixed(2)}s`,
+      note: 'End-to-end API time',
+      icon: Clock,
+      color: 'blue',
+    },
+    {
+      label: 'Analyzed Replies',
+      value: String(summary.total_queries || 0),
+      note: `${summary.multi_turn_queries || 0} with conversation history`,
+      icon: MessageSquare,
+      color: 'cyan',
+    },
+  ];
 
-const rawSimilarity = Number(summary.similarity ?? 0);
-const similarityScore = rawSimilarity <= 1 ? rawSimilarity * 100 : rawSimilarity;
-
-const tokensSaved = Number(
-  summary.tokens?.tokens_saved ?? 0
-);
-
+  const colors = {
+    blue: ['border-blue-500', 'bg-blue-600', 'text-blue-400'],
+    green: ['border-green-500', 'bg-green-600', 'text-green-400'],
+    yellow: ['border-yellow-500', 'bg-yellow-600', 'text-yellow-400'],
+    purple: ['border-purple-500', 'bg-purple-600', 'text-purple-400'],
+    cyan: ['border-cyan-500', 'bg-cyan-700', 'text-cyan-400'],
+  };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-      {/* Token Reduction Card */}
-      <div className="bg-gray-800 rounded-xl shadow-2xl p-6 border-l-4 border-blue-500">
-        <div className="flex items-center justify-between mb-3">
-          <div className="bg-blue-600 p-3 rounded-lg">
-            <Zap className="w-6 h-6 text-white" />
+    <div className="mb-8">
+      <h2 className="text-xl font-semibold text-gray-200 mb-4">Live Session Metrics</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
+        {cards.map(({ label, value, note, icon: Icon, color }) => (
+          <div key={label} className={`bg-gray-800 rounded-xl shadow-lg p-5 border-l-4 ${colors[color][0]}`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className={`${colors[color][1]} p-2 rounded-lg`}><Icon className="w-5 h-5 text-white" /></div>
+              {label === 'Estimated Cost Savings' && summary.cost && (
+                <span className={`text-xs px-2 py-1 rounded ${summary.cost.estimated_savings_percent >= 0 ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`}>
+                  {summary.cost.estimated_savings_percent >= 0 ? 'Savings' : 'Cost increase'}
+                </span>
+              )}
+            </div>
+            <h3 className="text-sm font-medium text-gray-400 mb-1">{label}</h3>
+            <p className={`text-2xl font-bold ${colors[color][2]}`}>{value}</p>
+            <p className="text-gray-500 text-xs mt-2">{note}</p>
           </div>
-          <div className={`text-xs px-2 py-1 rounded ${
-            tokenReduction >= 20 ? 'bg-green-900/50 text-green-300' : 'bg-yellow-900/50 text-yellow-300'
-          }`}>
-            {tokenReduction >= 20 ? 'Excellent' : 'Good'}
-          </div>
-        </div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">Token Reduction</h3>
-        <p className="text-3xl font-bold text-blue-400">
-          {isNaN(tokenReduction) ? 'N/A' : tokenReduction.toFixed(1)}%
-        </p>
-        <p className="text-gray-500 text-xs mt-2">Efficiency improvement</p>
-      </div>
-
-      {/* Similarity Score Card */}
-      <div className="bg-gray-800 rounded-xl shadow-2xl p-6 border-l-4 border-green-500">
-        <div className="flex items-center justify-between mb-3">
-          <div className="bg-green-600 p-3 rounded-lg">
-            <Activity className="w-6 h-6 text-white" />
-          </div>
-          <div className={`text-xs px-2 py-1 rounded ${
-            similarityScore >= 90 ? 'bg-green-900/50 text-green-300' : 'bg-yellow-900/50 text-yellow-300'
-          }`}>
-            {similarityScore >= 90 ? 'High overlap' : 'Lower overlap'}
-          </div>
-        </div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">Text Preservation Proxy</h3>
-        <p className="text-3xl font-bold text-green-400">
-          {isNaN(similarityScore) ? 'N/A' : similarityScore.toFixed(1)}%
-        </p>
-        <p className="text-gray-500 text-xs mt-2">Character overlap; not an embedding score</p>
-      </div>
-
-      <div className="bg-gray-800 rounded-xl shadow-2xl p-6 border-l-4 border-cyan-500">
-        <div className="flex items-center justify-between mb-3">
-          <div className="bg-cyan-700 p-3 rounded-lg"><Activity className="w-6 h-6 text-white" /></div>
-          <div className="text-xs px-2 py-1 rounded bg-cyan-900/50 text-cyan-300">Browser history</div>
-        </div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">Analyzed Replies</h3>
-        <p className="text-3xl font-bold text-cyan-400">{summary.total_queries || 0}</p>
-        <p className="text-gray-500 text-xs mt-2">Successful model responses</p>
-      </div>
-
-      {/* Tokens Saved Card */}
-      <div className="bg-gray-800 rounded-xl shadow-2xl p-6 border-l-4 border-purple-500">
-        <div className="flex items-center justify-between mb-3">
-          <div className="bg-purple-600 p-3 rounded-lg">
-            <TrendingDown className="w-6 h-6 text-white" />
-          </div>
-          <div className="text-xs px-2 py-1 rounded bg-purple-900/50 text-purple-300">
-            Saved
-          </div>
-        </div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">Tokens Saved</h3>
-        <p className="text-3xl font-bold text-purple-400">
-          {isNaN(tokensSaved) ? 'N/A' : tokensSaved}
-        </p>
-        <p className="text-gray-500 text-xs mt-2">Total reduction</p>
+        ))}
       </div>
     </div>
   );

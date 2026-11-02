@@ -42,9 +42,22 @@ OLLAMA_MODELS = {
 }
 STRATEGY_TARGETS = {
     "conservative": {"target_reduction": 15, "min_similarity": 0.90},
-    "balanced": {"target_reduction": 30, "min_similarity": 0.85},
-    "aggressive": {"target_reduction": 35, "min_similarity": 0.80},
+    "balanced": {"target_reduction": 30, "min_similarity": 0.90},
+    "aggressive": {"target_reduction": 35, "min_similarity": 0.90},
 }
+REPORT_BENCHMARKS = {
+    "token_reduction_percent": 30,
+    "cost_savings_percent_min": 25,
+    "cost_savings_percent_max": 35,
+    "semantic_similarity_minimum": 0.90,
+    "semantic_similarity_reported": 0.92,
+    "multi_turn_coherence_improvement_percent": 22,
+    "single_turn_prompts": 300,
+    "multi_turn_conversations": 80,
+}
+GEMINI_EMBEDDING_MODEL = "gemini-embedding-001"
+GEMINI_EMBEDDING_USD_PER_MILLION_TOKENS = 0.15
+MAX_SEMANTIC_SCORE_CHARS = 6000
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
 OLLAMA_ENABLED = os.getenv("OLLAMA_ENABLED", "true").lower() in ("1", "true", "yes", "on")
 CACHE_LIMIT = 128
@@ -162,11 +175,84 @@ def estimate_tokens(text):
     return max(0, math.ceil(len(text) / 4))
 
 
-def similarity_proxy(original, optimized):
-    """Text-overlap proxy only; it is not represented as an embedding score."""
+def count_prompt_tokens(prompt, history, provider, model_alias):
+    """Count the full prompt context with the provider tokenizer when possible."""
+    if provider == "gemini":
+        try:
+            client = gemini_client()
+            contents = [{"role": item["role"], "parts": [{"text": item["content"]}]} for item in history]
+            contents.append({"role": "user", "parts": [{"text": prompt}]})
+            response = client.models.count_tokens(model=GEMINI_MODELS[model_alias], contents=contents)
+            total = getattr(response, "total_tokens", None)
+            if total is not None:
+                return int(total), "Gemini model tokenizer"
+        except Exception as exc:
+            app.logger.info("Gemini token counting unavailable; using a documented estimate (%s)", type(exc).__name__)
+
+    total_chars = len(prompt) + sum(len(item["content"]) for item in history)
+    return math.ceil(total_chars / 4), "estimated at approximately 4 characters per token"
+
+
+def cosine_similarity(first, second):
+    if not first or not second or len(first) != len(second):
+        return None
+    dot = sum(left * right for left, right in zip(first, second))
+    first_norm = math.sqrt(sum(value * value for value in first))
+    second_norm = math.sqrt(sum(value * value for value in second))
+    if not first_norm or not second_norm:
+        return None
+    return round(max(0.0, min(1.0, dot / (first_norm * second_norm))), 4)
+
+
+def local_embedding_model():
+    configured = os.getenv("OLLAMA_EMBEDDING_MODEL", "").strip()
+    tags = ollama_tags()
+    if configured:
+        return configured
+    preferred = ("nomic-embed-text", "mxbai-embed-large", "all-minilm")
+    return next((tag for tag in tags if any(name in tag.lower() for name in preferred)), None)
+
+
+def semantic_similarity(original, optimized, provider):
+    """Compare the original and optimized prompts using embedding cosine similarity."""
     if original == optimized:
-        return 1.0
-    return round(SequenceMatcher(None, original.lower(), optimized.lower()).ratio(), 4)
+        return 1.0, "exact text match"
+    if max(len(original), len(optimized)) > MAX_SEMANTIC_SCORE_CHARS:
+        return None, "not measured: prompt exceeds the live embedding limit"
+
+    try:
+        if provider == "gemini" and os.getenv("GEMINI_API_KEY"):
+            from google.genai import types
+            response = gemini_client().models.embed_content(
+                model=GEMINI_EMBEDDING_MODEL,
+                contents=[original, optimized],
+                config=types.EmbedContentConfig(
+                    task_type="SEMANTIC_SIMILARITY",
+                    output_dimensionality=768,
+                ),
+            )
+            embeddings = getattr(response, "embeddings", None) or []
+            values = [getattr(item, "values", None) for item in embeddings]
+            if len(values) == 2 and values[0] and values[1]:
+                return cosine_similarity(values[0], values[1]), "Gemini text embedding cosine similarity"
+        elif provider == "ollama":
+            model = local_embedding_model()
+            if model:
+                response = requests.post(
+                    f"{OLLAMA_BASE_URL}/api/embed",
+                    json={"model": model, "input": [original, optimized]},
+                    timeout=(4, 30),
+                )
+                response.raise_for_status()
+                vectors = response.json().get("embeddings", [])
+                if len(vectors) == 2:
+                    return cosine_similarity(vectors[0], vectors[1]), f"Ollama embedding cosine similarity ({model})"
+    except Exception as exc:
+        app.logger.info("Semantic embedding unavailable; the request will continue without this score (%s)", type(exc).__name__)
+
+    if provider == "ollama":
+        return None, "not measured: install an Ollama embedding model (for example nomic-embed-text)"
+    return None, "not measured: semantic embedding service unavailable"
 
 
 def ollama_tags(force=False):
@@ -425,6 +511,12 @@ def status():
         "ollama_base_url": OLLAMA_BASE_URL,
         "installed_ollama_models": tags,
         "available_models": models,
+        "semantic_metrics": {
+            "gemini": "Gemini text embeddings" if os.getenv("GEMINI_API_KEY") else None,
+            "ollama": local_embedding_model() if tags else None,
+            "report_similarity_threshold": REPORT_BENCHMARKS["semantic_similarity_minimum"],
+        },
+        "report_benchmarks": REPORT_BENCHMARKS,
         "semantic_cache_entries": len(_CACHE),
         "feedback_observations": sum(value["count"] for value in _POLICY_FEEDBACK.values()),
         "timestamp": utc_now(),
@@ -450,6 +542,7 @@ def strategies():
         "models": models,
         "gemini_available": bool(os.getenv("GEMINI_API_KEY")),
         "ollama_available": bool(tags),
+        "report_benchmarks": REPORT_BENCHMARKS,
     })
 
 
@@ -496,11 +589,11 @@ def process():
     except ValueError as exc:
         return jsonify({"success": False, "error": str(exc), "timestamp": utc_now()}), 400
 
-    original_tokens = estimate_tokens(prompt)
-    optimized_tokens = estimate_tokens(optimized)
-    tokens_saved = max(0, original_tokens - optimized_tokens)
+    original_tokens, original_token_method = count_prompt_tokens(prompt, history, provider, chosen)
+    optimized_tokens, optimized_token_method = count_prompt_tokens(optimized, history, provider, chosen)
+    tokens_saved = original_tokens - optimized_tokens
     reduction = (tokens_saved / original_tokens * 100) if original_tokens else 0
-    similarity = similarity_proxy(prompt, optimized)
+    similarity, similarity_method = semantic_similarity(prompt, optimized, provider)
     minimum_similarity = STRATEGY_TARGETS[strategy]["min_similarity"]
     target_reduction = STRATEGY_TARGETS[strategy]["target_reduction"]
 
@@ -511,21 +604,24 @@ def process():
         "optimization_method": strategy_used,
         "token_reduction_percent": round(reduction, 1),
         "similarity": similarity,
-        "similarity_method": "character-overlap proxy; not a transformer embedding",
-        "target_achieved": reduction >= target_reduction and similarity >= minimum_similarity,
+        "similarity_method": similarity_method,
+        "target_achieved": None if similarity is None else reduction >= target_reduction and similarity >= minimum_similarity,
+        "report_benchmarks": REPORT_BENCHMARKS,
         "selected_llm": chosen,
         "model_preference": preference,
         "routing_policy": "contextual-bandit-with-user-feedback" if preference == "auto" else "manual",
         "routing_reason": route_reason,
         "complexity_score": round(complexity_score(prompt, category, history), 2),
+        "history_turns": sum(item["role"] == "user" for item in history),
         "category": category,
         "metrics": {
             "original_tokens": original_tokens,
             "optimized_tokens": optimized_tokens,
             "tokens_saved": tokens_saved,
-            "token_count_method": "estimated at approximately 4 characters per token",
+            "token_count_method": original_token_method if original_token_method == optimized_token_method else f"original: {original_token_method}; optimized: {optimized_token_method}",
             "target_reduction_percent": target_reduction,
             "minimum_similarity": minimum_similarity,
+            "similarity_method": similarity_method,
         },
         "actual_usage": None,
         "cost": None,
@@ -564,34 +660,32 @@ def process():
                 result["actual_usage"] = usage
                 cache_store(prompt, category, chosen, generated_text)
 
-                if provider == "gemini":
-                    output_tokens = usage.get("completion_tokens") or estimate_tokens(generated_text)
-                    context_tokens = sum(estimate_tokens(item["content"]) for item in history)
-                    base_input = estimate_tokens(prompt) + context_tokens
-                    optimized_input = estimate_tokens(optimized) + context_tokens
-                    original_cost = gemini_cost(chosen, base_input, output_tokens)
-                    optimized_cost = gemini_cost(chosen, optimized_input, output_tokens)
-                    result["cost"] = {
-                        "original_cost_usd": round(original_cost, 8),
-                        "optimized_cost_usd": round(optimized_cost, 8),
-                        "estimated_savings_usd": round(max(0, original_cost - optimized_cost), 8),
-                        "estimated_current_request_usd": round(optimized_cost, 8),
-                        "model_pricing": "Estimated standard paid-tier text list price; actual billing/free tier may differ",
-                        "input_usd_per_million_tokens": 1.25 if chosen == "gemini-pro" else 0.30,
-                        "output_usd_per_million_tokens": 10.0 if chosen == "gemini-pro" else 2.5,
-                    }
             except Exception as exc:
                 app.logger.exception("Model generation failed (%s)", provider)
                 message, status_code = clean_provider_error(exc, provider)
                 return jsonify({"success": False, "error": message, "timestamp": utc_now()}), status_code
 
-        if result.get("cache_hit") and provider == "gemini":
+        if provider == "gemini" and result.get("response"):
+            usage = result.get("actual_usage") or {}
+            output_tokens = usage.get("completion_tokens") or estimate_tokens(result.get("response", ""))
+            embedding_was_used = similarity is not None and similarity_method.startswith("Gemini text embedding")
+            embedding_tokens = estimate_tokens(prompt) + estimate_tokens(optimized) if embedding_was_used else 0
+            embedding_cost = embedding_tokens * GEMINI_EMBEDDING_USD_PER_MILLION_TOKENS / 1_000_000
+            original_cost = gemini_cost(chosen, original_tokens, output_tokens)
+            current_generation_cost = 0 if result.get("cache_hit") else gemini_cost(chosen, optimized_tokens, output_tokens)
+            optimized_cost = current_generation_cost + embedding_cost
+            estimated_savings = original_cost - optimized_cost
             result["cost"] = {
-                "original_cost_usd": 0,
-                "optimized_cost_usd": 0,
-                "estimated_savings_usd": 0,
-                "estimated_current_request_usd": 0,
-                "model_pricing": "No model call was made; response reused from the in-memory similarity cache",
+                "original_cost_usd": round(original_cost, 8),
+                "optimized_cost_usd": round(optimized_cost, 8),
+                "estimated_savings_usd": round(estimated_savings, 8),
+                "estimated_savings_percent": round((estimated_savings / original_cost) * 100, 2) if original_cost else 0,
+                "estimated_current_request_usd": round(optimized_cost, 8),
+                "embedding_cost_usd": round(embedding_cost, 8),
+                "cost_basis": "Same selected Gemini model; raw versus optimized full prompt context. Includes the paid-tier embedding estimate and cache savings when applicable.",
+                "model_pricing": "Estimated standard paid-tier Gemini list prices; free-tier use and actual billing may differ",
+                "input_usd_per_million_tokens": 1.25 if chosen == "gemini-pro" else 0.30,
+                "output_usd_per_million_tokens": 10.0 if chosen == "gemini-pro" else 2.5,
             }
 
     return jsonify({"success": True, "data": result, "processing_time": round(time.time() - started, 3), "timestamp": utc_now()})

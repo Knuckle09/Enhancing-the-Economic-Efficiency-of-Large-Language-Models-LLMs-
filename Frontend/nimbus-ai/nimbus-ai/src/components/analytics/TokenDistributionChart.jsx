@@ -8,13 +8,13 @@ const TokenDistributionChart = ({ data }) => {
   const saved = Number(data?.tokens?.tokens_saved || 0);
   const distribution = [
     { name: 'Tokens sent after optimization', value: used },
-    { name: 'Estimated tokens saved', value: saved },
+  { name: 'Tokens saved', value: saved },
   ].filter((item) => item.value > 0);
 
   return (
     <div className="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
       <h3 className="text-lg font-semibold text-gray-200 mb-2">Token Usage</h3>
-      <p className="text-xs text-gray-400 mb-3">Approximate counts from your saved replies</p>
+      <p className="text-xs text-gray-400 mb-3">Token counts follow the provider method shown in prompt details</p>
       {distribution.length ? (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">

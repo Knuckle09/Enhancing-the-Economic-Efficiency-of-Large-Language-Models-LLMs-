@@ -60,7 +60,7 @@ const TokenReductionChart = ({ data, summary }) => {
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
           <div>
-            <p className="text-xs text-gray-400">Tokens Reduced</p>
+              <p className="text-xs text-gray-400">Live reduction</p>
             <p className="text-lg font-bold" style={{ color }}>
               {tokenReduction.toFixed(1)}%
             </p>
@@ -70,7 +70,7 @@ const TokenReductionChart = ({ data, summary }) => {
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 rounded-full bg-gray-500" />
           <div>
-            <p className="text-xs text-gray-400">Tokens Retained</p>
+              <p className="text-xs text-gray-400">Estimated share retained</p>
             <p className="text-lg font-bold text-gray-400">{remaining.toFixed(1)}%</p>
           </div>
         </div>

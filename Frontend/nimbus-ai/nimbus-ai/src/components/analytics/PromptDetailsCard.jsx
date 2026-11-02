@@ -43,9 +43,9 @@ const PromptDetailsCard = ({ prompt, isExpanded, onToggle }) => {
               <div className="flex items-center gap-2">
                 <Target className="w-4 h-4 text-green-400" />
                 <div>
-                  <p className="text-xs text-gray-400">Similarity</p>
+                  <p className="text-xs text-gray-400">Semantic Similarity</p>
                   <p className="text-sm font-semibold text-green-400">
-                    {((prompt.metrics?.similarity || 0) * 100).toFixed(1)}%
+                    {Number.isFinite(prompt.metrics?.similarity) ? `${(prompt.metrics.similarity * 100).toFixed(1)}%` : 'Not measured'}
                   </p>
                 </div>
               </div>
@@ -73,6 +73,13 @@ const PromptDetailsCard = ({ prompt, isExpanded, onToggle }) => {
               )}
             </div>
           </div>
+
+          {prompt.metrics?.similarity_method && (
+            <p className="text-xs text-gray-500">Similarity method: {prompt.metrics.similarity_method}</p>
+          )}
+          {prompt.metrics?.token_count_method && (
+            <p className="text-xs text-gray-500 mt-1">Token count method: {prompt.metrics.token_count_method}</p>
+          )}
           
           <button className="ml-4 text-gray-400 hover:text-gray-200 transition-colors">
             {isExpanded ? (

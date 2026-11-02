@@ -138,7 +138,7 @@ export const ChatProvider = ({ children }) => {
         optimizedPrompt: data.optimized_prompt || promptText,
         strategyUsed: data.strategy_used,
         tokenReductionPercent: Number(data.token_reduction_percent || 0),
-        similarity: Number(data.similarity ?? 1),
+        similarity: data.similarity == null ? null : Number(data.similarity),
         similarityMethod: data.similarity_method,
         category: data.category || 'generic',
         targetAchieved: data.target_achieved,
