@@ -127,10 +127,10 @@ export const ChatProvider = ({ children }) => {
     setCurrentPrompt('');
     setLoading(true);
     setError(null);
+    let streamedResponse = '';
 
     try {
       const modelPreference = state.modelPreference || 'auto';
-      let streamedResponse = '';
       const result = await ChatService.sendMessageToAPI({
         prompt: promptText,
         history,
@@ -157,7 +157,7 @@ export const ChatProvider = ({ children }) => {
       if (data.response_error) {
         assistantText = `Prompt optimization completed, but generation failed: ${data.response_error}`;
       } else if (data.response) {
-        assistantText = `${data.model_fallback_notice ? `ℹ️ ${data.model_fallback_notice}\n\n` : ''}${data.cache_hit ? '⚡ Reused a highly similar recent answer.\n\n' : ''}${data.response}`;
+        assistantText = `${data.model_fallback_notice ? `ℹ️ ${data.model_fallback_notice}\n\n` : ''}${data.generation_warning ? `⚠️ ${data.generation_warning}\n\n` : ''}${data.cache_hit ? '⚡ Reused a highly similar recent answer.\n\n' : ''}${data.response}`;
       } else {
         assistantText = 'Prompt optimized successfully. No model response was requested.';
       }
@@ -186,10 +186,14 @@ export const ChatProvider = ({ children }) => {
       } } });
     } catch (error) {
       const errorMessage = error.message || 'An error occurred while sending the message';
-      setError(errorMessage);
+      const partialResponse = streamedResponse.trim();
+      setError(partialResponse ? null : errorMessage);
+      const content = partialResponse
+        ? `${partialResponse}\n\n⚠️ The connection ended before completion was confirmed. Retry your request to get a complete response.`
+        : `Error: ${errorMessage}`;
       dispatch({ type: ACTIONS.UPDATE_MESSAGE, payload: {
         id: assistantMessage.id,
-        changes: { content: `Error: ${errorMessage}`, isError: true, isStreaming: false, streamStatus: null },
+        changes: { content, isError: !partialResponse, isStreaming: false, streamStatus: null },
       } });
     } finally {
       setLoading(false);

@@ -456,6 +456,14 @@ def clean_provider_error(error, provider):
         return "Gemini could not authenticate. Check GEMINI_API_KEY in the backend environment.", 503
     if provider == "ollama":
         return f"Could not reach Ollama at {OLLAMA_BASE_URL}. Start Ollama and confirm the selected model is installed.", 503
+    if "403" in message or "forbidden" in message:
+        return "Gemini denied access to this model. Check that the API key has access to the selected model.", 503
+    if "404" in message or "not found" in message:
+        return "The selected Gemini model is unavailable. Choose another model or try again after the model service recovers.", 503
+    if any(term in message for term in ("unavailable", "503", "deadline_exceeded", "timed out", "timeout")):
+        return "Gemini is temporarily unavailable or took too long to respond. Retry in a moment or choose Gemini Flash.", 503
+    if any(term in message for term in ("blocked", "safety", "prompt_feedback")):
+        return "Gemini blocked this request. Rephrase it and try again.", 400
     return "The language model could not generate a response. Please retry in a moment.", 502
 
 
@@ -719,6 +727,7 @@ def _process_payload(data, started, on_delta=None, on_progress=None):
             result["response"] = cache_entry[0]
             result["cache_hit"] = True
             result["cache_similarity"] = cache_entry[1]
+            result["response_complete"] = True
             result["actual_usage"] = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "source": "similarity cache"}
             if on_delta:
                 on_delta(cache_entry[0])
@@ -762,13 +771,29 @@ def _process_payload(data, started, on_delta=None, on_progress=None):
                 if not generated_text:
                     return {"success": False, "error": "The model returned an empty response. Please rephrase your prompt and retry."}, 502
                 result["response"] = generated_text
+                result["response_complete"] = True
                 result["actual_usage"] = usage
                 cache_store(prompt, category, chosen, generated_text)
 
             except Exception as exc:
                 app.logger.exception("Model generation failed (%s)", provider)
-                message, status_code = clean_provider_error(exc, provider)
-                return {"success": False, "error": message, "timestamp": utc_now()}, status_code
+                partial_response = "".join(streamed_parts).strip()
+                if partial_response:
+                    result["response"] = partial_response
+                    result["response_complete"] = False
+                    result["generation_warning"] = (
+                        "The model connection stopped before completion was confirmed. "
+                        "This partial answer is shown; retry your request to get a complete response."
+                    )
+                    result["actual_usage"] = {
+                        "prompt_tokens": None,
+                        "completion_tokens": None,
+                        "total_tokens": None,
+                        "source": "unavailable after interrupted stream",
+                    }
+                else:
+                    message, status_code = clean_provider_error(exc, provider)
+                    return {"success": False, "error": message, "timestamp": utc_now()}, status_code
 
         if provider == "gemini" and result.get("response"):
             usage = result.get("actual_usage") or {}
