@@ -1,3 +1,4 @@
+/* eslint react-refresh/only-export-components: off */
 // Chat state, local conversation memory, and model feedback.
 
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
@@ -11,7 +12,16 @@ function loadMessages() {
   try {
     const saved = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]');
     return Array.isArray(saved)
-      ? saved.map((message) => ({ ...message, timestamp: new Date(message.timestamp) }))
+      ? saved.map((message) => ({
+        ...message,
+        timestamp: new Date(message.timestamp),
+        ...(message.isStreaming ? {
+          content: message.content || 'This response was interrupted. Send the prompt again to retry.',
+          isStreaming: false,
+          isError: true,
+          streamStatus: null,
+        } : {}),
+      }))
       : [];
   } catch {
     return [];
@@ -31,6 +41,7 @@ const initialState = {
 const ACTIONS = {
   SET_PROMPT: 'SET_PROMPT',
   ADD_MESSAGE: 'ADD_MESSAGE',
+  UPDATE_MESSAGE: 'UPDATE_MESSAGE',
   SET_LOADING: 'SET_LOADING',
   SET_ERROR: 'SET_ERROR',
   CLEAR_MESSAGES: 'CLEAR_MESSAGES',
@@ -46,6 +57,13 @@ function chatReducer(state, action) {
       return { ...state, currentPrompt: action.payload };
     case ACTIONS.ADD_MESSAGE:
       return { ...state, messages: [...state.messages, action.payload] };
+    case ACTIONS.UPDATE_MESSAGE:
+      return {
+        ...state,
+        messages: state.messages.map((message) => message.id === action.payload.id
+          ? { ...message, ...action.payload.changes }
+          : message),
+      };
     case ACTIONS.SET_LOADING:
       return { ...state, isLoading: action.payload };
     case ACTIONS.SET_ERROR:
@@ -104,12 +122,15 @@ export const ChatProvider = ({ children }) => {
       }));
 
     addMessage(ChatService.createMessage(MESSAGE_TYPES.USER, promptText));
+    const assistantMessage = ChatService.createMessage(MESSAGE_TYPES.ASSISTANT, '', { isStreaming: true, streamStatus: 'Waking the model service…' });
+    addMessage(assistantMessage);
     setCurrentPrompt('');
     setLoading(true);
     setError(null);
 
     try {
       const modelPreference = state.modelPreference || 'auto';
+      let streamedResponse = '';
       const result = await ChatService.sendMessageToAPI({
         prompt: promptText,
         history,
@@ -117,6 +138,15 @@ export const ChatProvider = ({ children }) => {
         includeResponse: true,
         modelPreference,
         selectedModel: modelPreference === 'manual' ? state.selectedModel : null,
+        onProgress: (message) => {
+          if (!streamedResponse) {
+            dispatch({ type: ACTIONS.UPDATE_MESSAGE, payload: { id: assistantMessage.id, changes: { streamStatus: message, isStreaming: true } } });
+          }
+        },
+        onDelta: (piece) => {
+          streamedResponse += piece;
+          dispatch({ type: ACTIONS.UPDATE_MESSAGE, payload: { id: assistantMessage.id, changes: { content: streamedResponse, streamStatus: 'Generating response…', isStreaming: true } } });
+        },
       });
 
       if (!result.success) throw new Error(result.error || 'Failed to process prompt');
@@ -132,7 +162,10 @@ export const ChatProvider = ({ children }) => {
         assistantText = 'Prompt optimized successfully. No model response was requested.';
       }
 
-      addMessage(ChatService.createMessage(MESSAGE_TYPES.ASSISTANT, assistantText, {
+      dispatch({ type: ACTIONS.UPDATE_MESSAGE, payload: { id: assistantMessage.id, changes: {
+        content: assistantText,
+        isStreaming: false,
+        streamStatus: null,
         model: data.selected_llm || 'Unknown',
         originalPrompt: data.original_prompt || promptText,
         optimizedPrompt: data.optimized_prompt || promptText,
@@ -150,11 +183,14 @@ export const ChatProvider = ({ children }) => {
         routingReason: data.routing_reason || '',
         actualUsage: data.actual_usage || null,
         fullApiResponse: apiResponse,
-      }));
+      } } });
     } catch (error) {
       const errorMessage = error.message || 'An error occurred while sending the message';
       setError(errorMessage);
-      addMessage(ChatService.createMessage(MESSAGE_TYPES.ASSISTANT, `Error: ${errorMessage}`, { isError: true }));
+      dispatch({ type: ACTIONS.UPDATE_MESSAGE, payload: {
+        id: assistantMessage.id,
+        changes: { content: `Error: ${errorMessage}`, isError: true, isStreaming: false, streamStatus: null },
+      } });
     } finally {
       setLoading(false);
     }

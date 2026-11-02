@@ -1,3 +1,4 @@
+/* eslint react-refresh/only-export-components: off */
 // contexts/AppStateContext.jsx
 // Manages global app state (current view, navigation, etc.)
 

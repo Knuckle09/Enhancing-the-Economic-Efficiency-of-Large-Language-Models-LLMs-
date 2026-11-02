@@ -42,7 +42,7 @@ const ChatMessages = ({ messages, isLoading, onAnalyzeMessage, isAnalyzing, onFe
         ))}
 
         {/* Loading indicator */}
-        {isLoading && (
+        {isLoading && !messages.some((message) => message.isStreaming) && (
           <div className="flex justify-start">
             <div className="flex space-x-3 max-w-4xl w-full">
               <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">

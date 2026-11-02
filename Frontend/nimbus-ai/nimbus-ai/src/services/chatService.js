@@ -53,6 +53,8 @@ export class ChatService {
     includeResponse = true,
     modelPreference = 'auto',
     selectedModel = null,
+    onProgress,
+    onDelta,
   }) {
     try {
       const payload = {
@@ -67,12 +69,8 @@ export class ChatService {
         payload.selected_model = selectedModel;
       }
 
-      console.log('Sending to API:', payload);
+      const response = await apiService.stream('/api/process/stream', payload, { onProgress, onDelta });
 
-      // ✅ Fixed: was '/process', now '/api/process'
-      const response = await apiService.post('/api/process', payload);
-
-      console.log('API Response:', response);
       return { success: true, data: response };
 
     } catch (error) {

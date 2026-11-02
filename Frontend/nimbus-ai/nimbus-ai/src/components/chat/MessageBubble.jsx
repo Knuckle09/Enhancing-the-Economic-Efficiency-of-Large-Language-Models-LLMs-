@@ -70,6 +70,9 @@ const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing, onFeedback }) =
 
           {/* Message text */}
           <div className="text-sm leading-relaxed">{message.content}</div>
+          {isAssistant && message.isStreaming && (
+            <LoadingSpinner className="mt-3" text={message.content ? (message.streamStatus || 'Generating response…') : (message.streamStatus || 'Connecting…')} />
+          )}
 
           {/* Metrics for assistant messages */}
           {isAssistant && !message.isError && (message.tokenReductionPercent !== undefined || message.similarity !== undefined) && (

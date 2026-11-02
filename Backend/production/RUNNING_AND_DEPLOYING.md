@@ -60,6 +60,7 @@ Requirements: Python 3.10–3.12, Node.js 20 or newer, and Ollama if you want lo
 - Prompt category detection, conservative/balanced/aggressive cleanup, and estimated token/cost comparison.
 - Automatic model routing, manual overrides, local Ollama, Gemini, and quota fallback from Pro to Flash.
 - Recent conversation turns sent to the model and up to 60 chat messages saved in this browser's local storage.
+- Live model output streams into the chat as it is generated; the request stays open for long-form answers and sends periodic keepalives.
 - A bounded near-duplicate response cache and thumbs-up/down feedback that adjusts automatic model routing while the API process is running.
 - Analytics from saved replies: token reduction, embedding-based semantic similarity, estimated cost savings, token totals, model utilization, response time, strategy results, and prompt details.
 - A separate report benchmark panel shows the study's 30% token reduction, 25-35% cost savings, similarity above 0.90 (0.92 in the comparison table), and 22% multi-turn coherence improvement. These are reported study results, not live session readings.
@@ -72,7 +73,7 @@ The lightweight optimizer avoids rewriting code and uses meaning-preserving clea
 - Gemini API: `https://llm-efficiency-backend.onrender.com`
 - Frontend changes pushed to `main` deploy through `.github/workflows/deploy-pages.yml`.
 - Render runs `cloud_api.py` with `requirements-cloud.txt`. Set `GEMINI_API_KEY` in the Render service environment. The hosted instance has Ollama disabled because it cannot reach models on visitors' computers.
-- Render's free service may sleep while idle, so its first request can take longer while it wakes.
+- Render's free service sleeps after 15 minutes without traffic and can take about a minute to wake. The chat shows wake-up progress and streams the answer once generation begins. The Render start command allows up to 10 minutes for long replies. Upgrade the Render instance to avoid cold starts for consistently fast availability.
 
 To use Ollama, run the local API and frontend using the steps above. A public web page cannot directly access Ollama installed on your computer.
 

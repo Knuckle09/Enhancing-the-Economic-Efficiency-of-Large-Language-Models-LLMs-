@@ -67,10 +67,10 @@ const SummaryCards = ({ summary }) => {
     <div className="mb-8">
       <h2 className="text-xl font-semibold text-gray-200 mb-4">Live Session Metrics</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
-        {cards.map(({ label, value, note, icon: Icon, color }) => (
+        {cards.map(({ label, value, note, icon, color }) => (
           <div key={label} className={`bg-gray-800 rounded-xl shadow-lg p-5 border-l-4 ${colors[color][0]}`}>
             <div className="flex items-center justify-between mb-3">
-              <div className={`${colors[color][1]} p-2 rounded-lg`}><Icon className="w-5 h-5 text-white" /></div>
+              <div className={`${colors[color][1]} p-2 rounded-lg`}>{React.createElement(icon, { className: 'w-5 h-5 text-white' })}</div>
               {label === 'Estimated Cost Savings' && summary.cost && (
                 <span className={`text-xs px-2 py-1 rounded ${summary.cost.estimated_savings_percent >= 0 ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`}>
                   {summary.cost.estimated_savings_percent >= 0 ? 'Savings' : 'Cost increase'}

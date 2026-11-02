@@ -1,3 +1,4 @@
+/* eslint react-refresh/only-export-components: off */
 // contexts/AnalyticsContext.jsx
 // Manages analytics state and functionality - uses data from chat messages
 

@@ -11,15 +11,17 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from functools import lru_cache
 import hashlib
+import json
 import logging
 import math
 import os
+import queue
 import re
 import threading
 import time
 
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request, stream_with_context
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -142,6 +144,22 @@ def optimize_prompt(prompt, strategy, category):
     optimized = text
     for pattern, replacement in replacements:
         optimized = re.sub(pattern, replacement, optimized, flags=re.IGNORECASE)
+
+    # Compact recurring verbose instructions without deleting the requested tasks.
+    compact_phrases = (
+        (r"\bthe most important\b", "key"),
+        (r"\b(?:please\s+)?be exhaustive, verbose, detailed, explicit, comprehensive, and educational\b", "Be comprehensive, explicit, and educational"),
+        (r"\bWhen something can reasonably be explained further, provide the additional explanation rather than assuming it is obvious\b", "Explain further when useful instead of assuming it is obvious"),
+        (r"\bAt the same time, maintain logical organization so that the response remains understandable despite its length\b", "Organize the response clearly, even when lengthy"),
+        (r"\bTen questions that someone should ask themselves after reading the explanation\b", "Ten reflection questions for after the explanation"),
+        (r"\bTen additional topics that would be useful to study next\b", "Ten useful follow-up topics to study"),
+        (r"\bA beginner-friendly action plan\b", "An action plan for beginners"),
+        (r"\bAn intermediate-level action plan\b", "An intermediate action plan"),
+        (r"\bAn advanced-level action plan\b", "An advanced action plan"),
+    )
+    for pattern, replacement in compact_phrases:
+        optimized = re.sub(pattern, replacement, optimized, flags=re.IGNORECASE)
+
     if strategy == "aggressive":
         for pattern, replacement in (
             (r"\bin order to\b", "to"),
@@ -441,13 +459,31 @@ def clean_provider_error(error, provider):
     return "The language model could not generate a response. Please retry in a moment.", 502
 
 
-def generate_gemini(model_alias, prompt, history):
+def generate_gemini(model_alias, prompt, history, on_delta=None):
     client = gemini_client()
     contents = [{"role": item["role"], "parts": [{"text": item["content"]}]} for item in history]
     contents.append({"role": "user", "parts": [{"text": prompt}]})
-    response = client.models.generate_content(model=GEMINI_MODELS[model_alias], contents=contents)
-    response_text = (response.text or "").strip()
-    usage = getattr(response, "usage_metadata", None)
+    if on_delta:
+        from google.genai import types
+
+        response_text = []
+        usage = None
+        stream = client.models.generate_content_stream(
+            model=GEMINI_MODELS[model_alias],
+            contents=contents,
+            config=types.GenerateContentConfig(max_output_tokens=8192),
+        )
+        for chunk in stream:
+            piece = chunk.text or ""
+            if piece:
+                response_text.append(piece)
+                on_delta(piece)
+            usage = getattr(chunk, "usage_metadata", None) or usage
+        response_text = "".join(response_text).strip()
+    else:
+        response = client.models.generate_content(model=GEMINI_MODELS[model_alias], contents=contents)
+        response_text = (response.text or "").strip()
+        usage = getattr(response, "usage_metadata", None)
     usage_data = {
         "prompt_tokens": getattr(usage, "prompt_token_count", None) if usage else None,
         "completion_tokens": getattr(usage, "candidates_token_count", None) if usage else None,
@@ -457,27 +493,54 @@ def generate_gemini(model_alias, prompt, history):
     return response_text, usage_data
 
 
-def generate_ollama(model_alias, prompt, history):
+def generate_ollama(model_alias, prompt, history, on_delta=None):
     models = ollama_aliases()
     actual_model = models.get(model_alias)
     if not actual_model:
         raise RuntimeError("Selected Ollama model is not installed or Ollama is not running.")
     messages = [{"role": item["role"], "content": item["content"]} for item in history]
     messages.append({"role": "user", "content": prompt})
-    response = requests.post(
-        f"{OLLAMA_BASE_URL}/api/chat",
-        json={"model": actual_model, "messages": messages, "stream": False, "options": {"num_predict": 1024}},
-        timeout=(4, 180),
-    )
-    response.raise_for_status()
-    data = response.json()
-    response_text = str(data.get("message", {}).get("content", "")).strip()
-    usage = {
-        "prompt_tokens": data.get("prompt_eval_count"),
-        "completion_tokens": data.get("eval_count"),
-        "total_tokens": (data.get("prompt_eval_count") or 0) + (data.get("eval_count") or 0),
-        "source": "Ollama usage metadata",
-    }
+    if on_delta:
+        response = requests.post(
+            f"{OLLAMA_BASE_URL}/api/chat",
+            json={"model": actual_model, "messages": messages, "stream": True, "options": {"num_predict": 4096}},
+            timeout=(4, 600),
+            stream=True,
+        )
+        response.raise_for_status()
+        response_parts = []
+        last_data = {}
+        for line in response.iter_lines(decode_unicode=True):
+            if not line:
+                continue
+            data = json.loads(line)
+            piece = str(data.get("message", {}).get("content", ""))
+            if piece:
+                response_parts.append(piece)
+                on_delta(piece)
+            last_data = data
+        response_text = "".join(response_parts).strip()
+        usage = {
+            "prompt_tokens": last_data.get("prompt_eval_count"),
+            "completion_tokens": last_data.get("eval_count"),
+            "total_tokens": (last_data.get("prompt_eval_count") or 0) + (last_data.get("eval_count") or 0),
+            "source": "Ollama usage metadata",
+        }
+    else:
+        response = requests.post(
+            f"{OLLAMA_BASE_URL}/api/chat",
+            json={"model": actual_model, "messages": messages, "stream": False, "options": {"num_predict": 1024}},
+            timeout=(4, 180),
+        )
+        response.raise_for_status()
+        data = response.json()
+        response_text = str(data.get("message", {}).get("content", "")).strip()
+        usage = {
+            "prompt_tokens": data.get("prompt_eval_count"),
+            "completion_tokens": data.get("eval_count"),
+            "total_tokens": (data.get("prompt_eval_count") or 0) + (data.get("eval_count") or 0),
+            "source": "Ollama usage metadata",
+        }
     return response_text, usage, actual_model
 
 
@@ -562,19 +625,18 @@ def feedback():
     return jsonify({"success": True, "message": "Feedback recorded for adaptive routing.", "timestamp": utc_now()})
 
 
-@app.post("/api/process")
-def process():
-    started = time.time()
-    if not request.is_json:
-        return jsonify({"success": False, "error": "Request must be JSON", "timestamp": utc_now()}), 400
+def _process_payload(data, started, on_delta=None, on_progress=None):
+    def progress(message):
+        if on_progress:
+            on_progress(message)
 
-    data = request.get_json(silent=True) or {}
     prompt = str(data.get("prompt", "")).strip()
     if not prompt:
-        return jsonify({"success": False, "error": "Prompt is required", "timestamp": utc_now()}), 400
+        return {"success": False, "error": "Prompt is required", "timestamp": utc_now()}, 400
     if len(prompt) > 50000:
-        return jsonify({"success": False, "error": "Prompts are limited to 50,000 characters."}), 413
+        return {"success": False, "error": "Prompts are limited to 50,000 characters."}, 413
 
+    progress("Checking the prompt and conversation context…")
     history = normalize_history(data.get("history", []))
     category = classify(prompt)
     strategy = str(data.get("strategy", "balanced")).lower()
@@ -587,13 +649,30 @@ def process():
     try:
         chosen, route_reason, provider = choose_model(prompt, category, preference, selected, history)
     except ValueError as exc:
-        return jsonify({"success": False, "error": str(exc), "timestamp": utc_now()}), 400
+        return {"success": False, "error": str(exc), "timestamp": utc_now()}, 400
 
+    progress("Checking semantic similarity against the 0.90 report threshold…")
+    candidate_similarity, candidate_similarity_method = semantic_similarity(prompt, optimized, provider)
+    progress("Measuring report token counts with the selected model…")
     original_tokens, original_token_method = count_prompt_tokens(prompt, history, provider, chosen)
-    optimized_tokens, optimized_token_method = count_prompt_tokens(optimized, history, provider, chosen)
+    if optimized == prompt:
+        candidate_tokens, candidate_token_method = original_tokens, original_token_method
+    else:
+        candidate_tokens, candidate_token_method = count_prompt_tokens(optimized, history, provider, chosen)
+    candidate_reduction = ((original_tokens - candidate_tokens) / original_tokens * 100) if original_tokens else 0
+    similarity_guard_triggered = optimized != prompt and (
+        candidate_similarity is None or candidate_similarity < REPORT_BENCHMARKS["semantic_similarity_minimum"]
+    )
+    if similarity_guard_triggered:
+        optimized = prompt
+        strategy_used = "original prompt retained by semantic-similarity guard"
+        optimized_tokens, optimized_token_method = original_tokens, original_token_method
+        similarity, similarity_method = 1.0, "exact text match (candidate optimization rejected)"
+    else:
+        optimized_tokens, optimized_token_method = candidate_tokens, candidate_token_method
+        similarity, similarity_method = candidate_similarity, candidate_similarity_method
     tokens_saved = original_tokens - optimized_tokens
     reduction = (tokens_saved / original_tokens * 100) if original_tokens else 0
-    similarity, similarity_method = semantic_similarity(prompt, optimized, provider)
     minimum_similarity = STRATEGY_TARGETS[strategy]["min_similarity"]
     target_reduction = STRATEGY_TARGETS[strategy]["target_reduction"]
 
@@ -605,6 +684,10 @@ def process():
         "token_reduction_percent": round(reduction, 1),
         "similarity": similarity,
         "similarity_method": similarity_method,
+        "optimization_candidate_similarity": candidate_similarity,
+        "optimization_candidate_similarity_method": candidate_similarity_method,
+        "optimization_candidate_token_reduction_percent": round(candidate_reduction, 1),
+        "semantic_guard_triggered": similarity_guard_triggered,
         "target_achieved": None if similarity is None else reduction >= target_reduction and similarity >= minimum_similarity,
         "report_benchmarks": REPORT_BENCHMARKS,
         "selected_llm": chosen,
@@ -622,6 +705,8 @@ def process():
             "target_reduction_percent": target_reduction,
             "minimum_similarity": minimum_similarity,
             "similarity_method": similarity_method,
+            "optimization_candidate_similarity": candidate_similarity,
+            "semantic_guard_triggered": similarity_guard_triggered,
         },
         "actual_usage": None,
         "cost": None,
@@ -635,27 +720,47 @@ def process():
             result["cache_hit"] = True
             result["cache_similarity"] = cache_entry[1]
             result["actual_usage"] = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "source": "similarity cache"}
+            if on_delta:
+                on_delta(cache_entry[0])
         else:
             try:
+                progress(f"Generating a response with {chosen}…")
+                streamed_parts = []
+
+                def send_delta(piece):
+                    if piece:
+                        streamed_parts.append(piece)
+                        if on_delta:
+                            on_delta(piece)
+
                 if provider == "ollama":
-                    generated_text, usage, actual_model = generate_ollama(chosen, optimized, history)
+                    generated_text, usage, actual_model = generate_ollama(
+                        chosen, optimized, history, on_delta=send_delta if on_delta else None
+                    )
                     result["provider_model"] = actual_model
                 else:
                     try:
-                        generated_text, usage = generate_gemini(chosen, optimized, history)
+                        generated_text, usage = generate_gemini(
+                            chosen, optimized, history, on_delta=send_delta if on_delta else None
+                        )
                     except Exception as exc:
                         provider_message = str(exc).lower()
-                        if chosen != "gemini-pro" or not ("resource_exhausted" in provider_message or "429" in provider_message):
+                        can_fallback = chosen == "gemini-pro" and not streamed_parts and (
+                            "resource_exhausted" in provider_message or "429" in provider_message
+                        )
+                        if not can_fallback:
                             raise
                         app.logger.info("Gemini Pro quota unavailable; retrying with Flash")
                         chosen, route_reason, provider = "gemini-flash", "Gemini Pro quota unavailable; fell back to Gemini Flash", "gemini"
-                        generated_text, usage = generate_gemini(chosen, optimized, history)
+                        generated_text, usage = generate_gemini(
+                            chosen, optimized, history, on_delta=send_delta if on_delta else None
+                        )
                         result["model_fallback_notice"] = "Gemini Pro quota was unavailable, so this reply was generated with Gemini Flash."
                         result["selected_llm"] = chosen
                         result["routing_reason"] = route_reason
 
                 if not generated_text:
-                    return jsonify({"success": False, "error": "The model returned an empty response. Please rephrase your prompt and retry."}), 502
+                    return {"success": False, "error": "The model returned an empty response. Please rephrase your prompt and retry."}, 502
                 result["response"] = generated_text
                 result["actual_usage"] = usage
                 cache_store(prompt, category, chosen, generated_text)
@@ -663,7 +768,7 @@ def process():
             except Exception as exc:
                 app.logger.exception("Model generation failed (%s)", provider)
                 message, status_code = clean_provider_error(exc, provider)
-                return jsonify({"success": False, "error": message, "timestamp": utc_now()}), status_code
+                return {"success": False, "error": message, "timestamp": utc_now()}, status_code
 
         if provider == "gemini" and result.get("response"):
             usage = result.get("actual_usage") or {}
@@ -688,7 +793,72 @@ def process():
                 "output_usd_per_million_tokens": 10.0 if chosen == "gemini-pro" else 2.5,
             }
 
-    return jsonify({"success": True, "data": result, "processing_time": round(time.time() - started, 3), "timestamp": utc_now()})
+    return {"success": True, "data": result, "processing_time": round(time.time() - started, 3), "timestamp": utc_now()}, 200
+
+
+@app.post("/api/process")
+def process():
+    started = time.time()
+    if not request.is_json:
+        return jsonify({"success": False, "error": "Request must be JSON", "timestamp": utc_now()}), 400
+    payload, status_code = _process_payload(request.get_json(silent=True) or {}, started)
+    return jsonify(payload), status_code
+
+
+@app.post("/api/process/stream")
+def process_stream():
+    if not request.is_json:
+        return jsonify({"success": False, "error": "Request must be JSON", "timestamp": utc_now()}), 400
+    data = request.get_json(silent=True) or {}
+    if not str(data.get("prompt", "")).strip():
+        return jsonify({"success": False, "error": "Prompt is required", "timestamp": utc_now()}), 400
+
+    events = queue.Queue()
+    started = time.time()
+
+    def run_request():
+        try:
+            payload, status_code = _process_payload(
+                data,
+                started,
+                on_delta=lambda value: events.put({"type": "delta", "text": value}),
+                on_progress=lambda message: events.put({"type": "progress", "message": message}),
+            )
+            events.put({"type": "result", "payload": payload, "status_code": status_code})
+        except Exception as exc:
+            app.logger.exception("Streamed model request failed")
+            events.put({"type": "error", "message": "The model could not complete this request. Please retry."})
+
+    def encode_event(value):
+        return f"data: {json.dumps(value, ensure_ascii=False)}\n\n"
+
+    def generate_events():
+        yield encode_event({"type": "progress", "message": "Waking the model service and preparing your request…"})
+        threading.Thread(target=run_request, daemon=True).start()
+        while True:
+            try:
+                event = events.get(timeout=10)
+            except queue.Empty:
+                yield ": keepalive\n\n"
+                continue
+            if event["type"] in ("delta", "progress"):
+                yield encode_event(event)
+                continue
+            if event["type"] == "result":
+                payload = event["payload"]
+                if event["status_code"] >= 400 or not payload.get("success"):
+                    yield encode_event({"type": "error", "message": payload.get("error", "The request could not be completed.")})
+                else:
+                    yield encode_event({"type": "complete", "response": payload})
+                return
+            yield encode_event(event)
+            return
+
+    return Response(
+        stream_with_context(generate_events()),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
+    )
 
 
 if __name__ == "__main__":

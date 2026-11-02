@@ -23,10 +23,10 @@ const ReportBenchmarksCard = () => {
         </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-        {metrics.map(({ label, value, icon: Icon, color }) => (
+        {metrics.map(({ label, value, icon, color }) => (
           <div key={label} className="bg-gray-900/70 rounded-lg p-4">
             <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
-              <Icon className={`w-4 h-4 ${color}`} />
+              {React.createElement(icon, { className: `w-4 h-4 ${color}` })}
               <span>{label}</span>
             </div>
             <p className={`text-lg font-semibold ${color}`}>{value}</p>

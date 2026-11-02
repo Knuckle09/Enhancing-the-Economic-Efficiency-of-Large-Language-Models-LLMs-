@@ -2,7 +2,7 @@
 import React from 'react';
 
 const IconButton = ({ 
-  icon: Icon, 
+  icon,
   onClick, 
   disabled = false, 
   text, 
@@ -36,7 +36,7 @@ const IconButton = ({
       disabled={disabled}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
     >
-      <Icon className={iconSizes[size]} />
+      {React.createElement(icon, { className: iconSizes[size] })}
       {text && <span>{text}</span>}
     </button>
   );
