@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import { AnalyticsService } from '../services/analyticsService.js';
 import { useAppState } from './AppStateContext.jsx';
+import { useChat } from './ChatContext.jsx';
 
 // Initial state
 const initialState = {
@@ -63,6 +64,7 @@ const AnalyticsContext = createContext();
 export const AnalyticsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(analyticsReducer, initialState);
   const { switchToAnalytics } = useAppState();
+  const { messages } = useChat();
 
   // Actions
   const setAnalyzing = (isAnalyzing) => dispatch({ type: ACTIONS.SET_ANALYZING, payload: isAnalyzing });
@@ -84,10 +86,8 @@ export const AnalyticsProvider = ({ children }) => {
       setAnalyzing(true);
       setError(null);
 
-      // Transform the stored API response to analytics format
-      const analyticsData = AnalyticsService.transformApiResponseToAnalytics(
-        message.fullApiResponse
-      );
+      // Aggregate all successful turns saved in this browser session.
+      const analyticsData = AnalyticsService.transformMessagesToAnalytics(messages, message);
 
       if (analyticsData) {
         setAnalyticsData(analyticsData);

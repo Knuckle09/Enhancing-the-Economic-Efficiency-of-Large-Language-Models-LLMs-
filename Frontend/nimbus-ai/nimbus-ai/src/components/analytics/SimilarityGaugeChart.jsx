@@ -9,7 +9,7 @@ const SimilarityGaugeChart = ({ data }) => {
       <div className="bg-gray-800 rounded-xl shadow-2xl p-6">
         <div className="flex items-center space-x-2 mb-6">
           <Target className="w-6 h-6 text-green-400" />
-          <h3 className="text-xl font-semibold text-gray-200">Semantic Similarity</h3>
+          <h3 className="text-xl font-semibold text-gray-200">Text Preservation Proxy</h3>
         </div>
         <div className="h-64 flex items-center justify-center text-gray-500">
           No similarity data available
@@ -36,7 +36,7 @@ const SimilarityGaugeChart = ({ data }) => {
     <div className="bg-gray-800 rounded-xl shadow-2xl p-6 border-t-4 border-green-600">
       <div className="flex items-center space-x-2 mb-6">
         <Target className="w-6 h-6 text-green-400" />
-        <h3 className="text-xl font-semibold text-gray-200">Semantic Similarity</h3>
+        <h3 className="text-xl font-semibold text-gray-200">Text Preservation Proxy</h3>
       </div>
       
       <div className="h-64 flex items-center justify-center">
@@ -74,7 +74,7 @@ const SimilarityGaugeChart = ({ data }) => {
               className="text-sm"
               fill="#9ca3af"
             >
-              Similarity Score
+              Text overlap
             </text>
           </RadialBarChart>
         </ResponsiveContainer>

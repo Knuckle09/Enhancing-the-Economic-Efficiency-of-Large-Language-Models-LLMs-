@@ -1,161 +1,128 @@
-// services/analyticsService.js
-// Handles analytics-related API calls and data processing
+// Build analytics from real saved chat responses; no sample values are injected.
 
 import apiService from './api.js';
 
-export class AnalyticsService {
-  // Transform single API response to analytics format
-  static transformApiResponseToAnalytics(apiResponse) {
-  if (!apiResponse || !apiResponse.data) return null;
-
-  const d = apiResponse.data;
-
-  const promptEntry = {
-    id: `prompt-${apiResponse.timestamp || Date.now()}`,
-    type: d.category || 'generic',
-    original_prompt: d.original_prompt,
-    optimized_prompt: d.optimized_prompt,
-    llm_response: d.response || null,
-    response_error: d.response_error || null,
-    strategy_used: d.strategy_used,
-    selected_llm: d.selected_llm,
-    target_achieved: d.target_achieved,
-    processing_time: apiResponse.processing_time,
+function toPromptEntry(message) {
+  const apiResponse = message?.fullApiResponse;
+  const data = apiResponse?.data;
+  if (!data) return null;
+  return {
+    id: message.id,
+    category: data.category || 'generic',
+    type: data.category || 'generic',
+    original_prompt: data.original_prompt || message.originalPrompt || '',
+    optimized_prompt: data.optimized_prompt || message.optimizedPrompt || '',
+    llm_response: data.response || null,
+    response_error: data.response_error || null,
+    strategy_used: data.strategy_used,
+    selected_llm: data.selected_llm,
+    target_achieved: data.target_achieved,
+    processing_time: Number(apiResponse.processing_time || 0),
+    cache_hit: Boolean(data.cache_hit),
+    feedback: message.feedback || null,
     metrics: {
-  token_reduction_percent: d.token_reduction_percent || 0,
-  similarity: d.similarity || 0,
-  original_tokens: d.metrics?.original_tokens || 0,
-  optimized_tokens: d.metrics?.optimized_tokens || 0,
-  tokens_saved: d.metrics?.tokens_saved || 0,
-},
-
-    cost: d.cost || null,
-  };
-
-  const summary = {
-  total_queries: 1,
-  token_reduction_percent: d.token_reduction_percent || 0,
-  similarity: d.similarity || 0,
-  tokens: {
-    original_tokens: d.metrics?.original_tokens || 0,
-    optimized_tokens: d.metrics?.optimized_tokens || 0,
-    tokens_saved: d.metrics?.tokens_saved || 0,
-  },
-  cost: d.cost || null,
-  strategy_used: d.strategy_used,
-  selected_llm: d.selected_llm,
-  target_achieved: d.target_achieved,
-};
-
-
-  return {
-    summary,
-    prompts: [promptEntry],
-    raw_api_response: apiResponse,
+      token_reduction_percent: Number(data.token_reduction_percent || 0),
+      similarity: Number(data.similarity || 0),
+      original_tokens: Number(data.metrics?.original_tokens || 0),
+      optimized_tokens: Number(data.metrics?.optimized_tokens || 0),
+      tokens_saved: Number(data.metrics?.tokens_saved || 0),
+      token_count_method: data.metrics?.token_count_method,
+    },
+    cost: data.cost || null,
   };
 }
 
+export class AnalyticsService {
+  static transformMessagesToAnalytics(messages, selectedMessage) {
+    const entries = (messages || [])
+      .filter((message) => message.type === 'assistant' && !message.isError && message.fullApiResponse)
+      .map(toPromptEntry)
+      .filter(Boolean);
+    if (!entries.length) return null;
 
-  // Get min similarity threshold based on strategy
-  static getMinSimilarityForStrategy(strategy) {
-    const thresholds = {
-      aggressive: 0.85,
-      balanced: 0.85,
-      conservative: 0.90,
-    };
-    return thresholds[strategy] || 0.85;
-  }
+    const originalTokens = entries.reduce((sum, item) => sum + item.metrics.original_tokens, 0);
+    const optimizedTokens = entries.reduce((sum, item) => sum + item.metrics.optimized_tokens, 0);
+    const tokensSaved = entries.reduce((sum, item) => sum + item.metrics.tokens_saved, 0);
+    const similarity = entries.reduce((sum, item) => sum + item.metrics.similarity, 0) / entries.length;
+    const priced = entries.filter((item) => item.cost && Number.isFinite(Number(item.cost.optimized_cost_usd)));
+    const cost = priced.length ? {
+      original_cost_usd: priced.reduce((sum, item) => sum + Number(item.cost.original_cost_usd || 0), 0),
+      optimized_cost_usd: priced.reduce((sum, item) => sum + Number(item.cost.optimized_cost_usd || 0), 0),
+      estimated_savings_usd: priced.reduce((sum, item) => sum + Number(item.cost.estimated_savings_usd || 0), 0),
+      model_pricing: 'Estimated Gemini standard paid-tier list prices; local Ollama requests excluded',
+      requests_included: priced.length,
+    } : null;
+    const selectedEntry = entries.find((item) => item.id === selectedMessage?.id) || entries[entries.length - 1];
 
-  // Get target reduction based on strategy
-  static getTargetReductionForStrategy(strategy) {
-    const targets = {
-      aggressive: 35,
-      balanced: 30,
-      conservative: 15,
-    };
-    return targets[strategy] || 30;
-  }
-
-  // Calculate costs based on token counts
-  // Using approximate pricing: $0.01 per 1000 tokens
-  static calculateCosts(originalTokens, optimizedTokens) {
-    const pricePerThousandTokens = 0.01;
-    
-    const standardModelCost = (originalTokens / 1000) * pricePerThousandTokens;
-    const optimizedModelCost = (optimizedTokens / 1000) * pricePerThousandTokens;
-    
     return {
-      standard_model_cost: parseFloat(standardModelCost.toFixed(4)),
-      optimized_model_cost: parseFloat(optimizedModelCost.toFixed(4)),
+      summary: {
+        total_queries: entries.length,
+        token_reduction_percent: originalTokens ? (tokensSaved / originalTokens) * 100 : 0,
+        similarity,
+        tokens: { original_tokens: originalTokens, optimized_tokens: optimizedTokens, tokens_saved: tokensSaved },
+        cost,
+        strategy_used: selectedEntry.strategy_used,
+        selected_llm: selectedEntry.selected_llm,
+        target_achieved: selectedEntry.target_achieved,
+        strategy_targets: {
+          target_reduction: selectedMessage?.metrics?.target_reduction_percent || 30,
+          min_similarity: selectedMessage?.metrics?.minimum_similarity || 0.85,
+        },
+        token_count_method: selectedEntry.metrics.token_count_method,
+      },
+      prompts: entries,
+      raw_api_response: selectedMessage?.fullApiResponse || entries[entries.length - 1].fullApiResponse,
     };
   }
 
-  // Process cost data for chart visualization
+  static transformApiResponseToAnalytics(apiResponse) {
+    if (!apiResponse?.data) return null;
+    const syntheticMessage = {
+      id: `prompt-${apiResponse.timestamp || Date.now()}`,
+      type: 'assistant',
+      fullApiResponse: apiResponse,
+    };
+    return this.transformMessagesToAnalytics([syntheticMessage], syntheticMessage);
+  }
+
+  static getMinSimilarityForStrategy(strategy) {
+    return { aggressive: 0.80, balanced: 0.85, conservative: 0.90 }[strategy] || 0.85;
+  }
+
+  static getTargetReductionForStrategy(strategy) {
+    return { aggressive: 35, balanced: 30, conservative: 15 }[strategy] || 30;
+  }
+
   static prepareCostData(summary) {
-  if (!summary || !summary.cost) return [];
+    if (!summary?.cost) return [];
+    return [
+      { name: 'Original', cost: summary.cost.original_cost_usd },
+      { name: 'Optimized', cost: summary.cost.optimized_cost_usd },
+    ];
+  }
 
-  return [
-    {
-      name: 'Original',
-      cost: summary.cost.original_cost_usd,
-    },
-    {
-      name: 'Optimized',
-      cost: summary.cost.optimized_cost_usd,
-    },
-  ];
-}
-
-
-  // Calculate metrics for display
   static calculateMetrics(summary) {
-  if (!summary || !summary.cost) {
-    return { totalSavings: '0.000000', savingsPercentage: '0.0' };
+    if (!summary?.cost) return { totalSavings: '0.000000', savingsPercentage: '0.0' };
+    const original = Number(summary.cost.original_cost_usd || 0);
+    const optimized = Number(summary.cost.optimized_cost_usd || 0);
+    return {
+      totalSavings: (original - optimized).toFixed(6),
+      savingsPercentage: original > 0 ? (((original - optimized) / original) * 100).toFixed(1) : '0.0',
+    };
   }
 
-  const original = summary.cost.original_cost_usd || 0;
-  const optimized = summary.cost.optimized_cost_usd || 0;
-
-  const savings = original - optimized;
-  const savingPercent =
-    original > 0 ? ((savings / original) * 100).toFixed(1) : '0.0';
-
-  return {
-    totalSavings: savings.toFixed(6),
-    savingsPercentage: savingPercent,
-  };
-}
-
-  // Get available strategies from API
   static async getStrategies() {
-    try {
-      const response = await apiService.get('/api/strategies');
-      return { success: true, data: response };
-    } catch (error) {
-      console.error('Failed to fetch strategies:', error);
-      return { success: false, error: error.message };
-    }
+    try { return { success: true, data: await apiService.get('/api/strategies') }; }
+    catch (error) { return { success: false, error: error.message }; }
   }
 
-  // Health check
   static async checkHealth() {
-    try {
-      const response = await apiService.get('/api/health');
-      return { success: true, data: response };
-    } catch (error) {
-      console.error('Health check failed:', error);
-      return { success: false, error: error.message };
-    }
+    try { return { success: true, data: await apiService.get('/api/health') }; }
+    catch (error) { return { success: false, error: error.message }; }
   }
 
-  // Get API status
   static async getStatus() {
-    try {
-      const response = await apiService.get('/api/status');
-      return { success: true, data: response };
-    } catch (error) {
-      console.error('Status check failed:', error);
-      return { success: false, error: error.message };
-    }
+    try { return { success: true, data: await apiService.get('/api/status') }; }
+    catch (error) { return { success: false, error: error.message }; }
   }
 }

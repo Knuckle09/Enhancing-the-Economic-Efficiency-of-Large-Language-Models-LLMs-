@@ -1,10 +1,12 @@
 // components/chat/ChatHeader.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Info } from 'lucide-react';
+import { Info, Trash2 } from 'lucide-react';
 import Logo from '../../assets/logo.jpg'; // adjust path if needed
+import { useChat } from '../../contexts/ChatContext.jsx';
 
 const ChatHeader = () => {
+  const { messages, clearMessages } = useChat();
   return (
     <div className="bg-gray-800 border-b border-gray-700 p-4 flex-shrink-0">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -27,7 +29,12 @@ const ChatHeader = () => {
         </div>
 
         {/* Right: About Link */}
-        <div>
+        <div className="flex items-center gap-4">
+          {messages.length > 0 && (
+            <button onClick={clearMessages} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm" title="Clear saved chat">
+              <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Clear chat</span>
+            </button>
+          )}
           <Link to="/about" className="text-gray-400 hover:text-white">
             <Info className="w-6 h-6" title="About" />
           </Link>

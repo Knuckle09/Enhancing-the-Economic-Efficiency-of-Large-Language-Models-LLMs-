@@ -18,7 +18,7 @@ function getPromptCategory(prompt) {
 
   if (
     lowerPrompt.includes('```') ||
-    /\b(python|javascript|typescript|java|c\+\+|c#|rust|golang|sql|bash|powershell)\b/i.test(lowerPrompt) ||
+    /(?:^|\n)\s*(?:def\s+\w+\s*\(|class\s+\w+\s*[:({]|(?:const|let|var)\s+\w+\s*=|import\s+\w+)/i.test(lowerPrompt) ||
     (asksForCode && namesCode) ||
     asksForCallable
   ) {
@@ -48,6 +48,8 @@ export class ChatService {
   // Real API call to /api/process endpoint
   static async sendMessageToAPI({
     prompt,
+    history = [],
+    strategy = 'balanced',
     includeResponse = true,
     modelPreference = 'auto',
     selectedModel = null,
@@ -55,6 +57,8 @@ export class ChatService {
     try {
       const payload = {
         prompt: prompt.trim(),
+        history,
+        strategy,
         include_response: includeResponse,
         model_preference: modelPreference,
       };

@@ -9,7 +9,7 @@ import ChatMessages from './ChatMessages.jsx';
 import ChatInput from './ChatInput.jsx';
 
 const ChatInterface = () => {
-  const { messages, isLoading } = useChat();
+  const { messages, isLoading, rateResponse } = useChat();
   const { analyzeMessage, isAnalyzing } = useAnalytics();
 
   const handleAnalyzeMessage = (message) => {
@@ -24,6 +24,7 @@ const ChatInterface = () => {
         isLoading={isLoading}
         onAnalyzeMessage={handleAnalyzeMessage}
         isAnalyzing={isAnalyzing}
+        onFeedback={rateResponse}
       />
       <ChatInput />
     </div>

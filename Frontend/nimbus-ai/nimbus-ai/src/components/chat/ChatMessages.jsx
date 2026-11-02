@@ -4,7 +4,7 @@ import { Bot } from 'lucide-react';
 import MessageBubble from './MessageBubble.jsx';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
 
-const ChatMessages = ({ messages, isLoading, onAnalyzeMessage, isAnalyzing }) => {
+const ChatMessages = ({ messages, isLoading, onAnalyzeMessage, isAnalyzing, onFeedback }) => {
   const messagesEndRef = useRef(null);
 
   // Scroll to the bottom whenever messages or loading state changes
@@ -37,6 +37,7 @@ const ChatMessages = ({ messages, isLoading, onAnalyzeMessage, isAnalyzing }) =>
             message={message}
             onAnalyzeMessage={onAnalyzeMessage}
             isAnalyzing={isAnalyzing}
+            onFeedback={onFeedback}
           />
         ))}
 

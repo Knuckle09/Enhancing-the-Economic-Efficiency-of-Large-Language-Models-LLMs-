@@ -10,9 +10,8 @@ const SummaryCards = ({ summary }) => {
   summary.token_reduction_percent ?? 0
 );
 
-const similarityScore = Number(
-  summary.similarity ?? 0           // already in %
-);
+const rawSimilarity = Number(summary.similarity ?? 0);
+const similarityScore = rawSimilarity <= 1 ? rawSimilarity * 100 : rawSimilarity;
 
 const tokensSaved = Number(
   summary.tokens?.tokens_saved ?? 0
@@ -20,7 +19,7 @@ const tokensSaved = Number(
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
       {/* Token Reduction Card */}
       <div className="bg-gray-800 rounded-xl shadow-2xl p-6 border-l-4 border-blue-500">
         <div className="flex items-center justify-between mb-3">
@@ -49,14 +48,24 @@ const tokensSaved = Number(
           <div className={`text-xs px-2 py-1 rounded ${
             similarityScore >= 90 ? 'bg-green-900/50 text-green-300' : 'bg-yellow-900/50 text-yellow-300'
           }`}>
-            {similarityScore >= 90 ? 'High Quality' : 'Acceptable'}
+            {similarityScore >= 90 ? 'High overlap' : 'Lower overlap'}
           </div>
         </div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">Similarity Score</h3>
+        <h3 className="text-sm font-medium text-gray-400 mb-1">Text Preservation Proxy</h3>
         <p className="text-3xl font-bold text-green-400">
           {isNaN(similarityScore) ? 'N/A' : similarityScore.toFixed(1)}%
         </p>
-        <p className="text-gray-500 text-xs mt-2">Quality maintained</p>
+        <p className="text-gray-500 text-xs mt-2">Character overlap; not an embedding score</p>
+      </div>
+
+      <div className="bg-gray-800 rounded-xl shadow-2xl p-6 border-l-4 border-cyan-500">
+        <div className="flex items-center justify-between mb-3">
+          <div className="bg-cyan-700 p-3 rounded-lg"><Activity className="w-6 h-6 text-white" /></div>
+          <div className="text-xs px-2 py-1 rounded bg-cyan-900/50 text-cyan-300">Browser history</div>
+        </div>
+        <h3 className="text-sm font-medium text-gray-400 mb-1">Analyzed Replies</h3>
+        <p className="text-3xl font-bold text-cyan-400">{summary.total_queries || 0}</p>
+        <p className="text-gray-500 text-xs mt-2">Successful model responses</p>
       </div>
 
       {/* Tokens Saved Card */}

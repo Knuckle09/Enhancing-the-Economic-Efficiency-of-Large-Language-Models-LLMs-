@@ -8,6 +8,9 @@ import CostChart from './CostChart.jsx';
 import TokenReductionChart from './TokenReductionChart.jsx';
 import SimilarityGaugeChart from './SimilarityGaugeChart.jsx';
 import PromptDetailsCard from './PromptDetailsCard.jsx';
+import TokenDistributionChart from './TokenDistributionChart.jsx';
+import StrategyPerformanceChart from './StrategyPerformanceChart.jsx';
+import ModelPerformanceChart from './ModelPerformanceChart.jsx';
 
 const AnalyticsDashboard = () => {
   const { 
@@ -106,6 +109,9 @@ const AnalyticsDashboard = () => {
           <TokenReductionChart data={summary}  />
           <SimilarityGaugeChart data={summary} />
           <CostChart summary={summary} />
+          <TokenDistributionChart data={summary} />
+          <StrategyPerformanceChart prompts={prompts} />
+          <ModelPerformanceChart prompts={prompts} />
         </div>
 
         {/* Prompt Detail Cards */}

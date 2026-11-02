@@ -45,7 +45,7 @@ const PromptDetailsCard = ({ prompt, isExpanded, onToggle }) => {
                 <div>
                   <p className="text-xs text-gray-400">Similarity</p>
                   <p className="text-sm font-semibold text-green-400">
-                    {prompt.metrics?.token_reduction_percent?.toFixed(1) || 0}%
+                    {((prompt.metrics?.similarity || 0) * 100).toFixed(1)}%
                   </p>
                 </div>
               </div>

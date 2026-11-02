@@ -1,11 +1,11 @@
 // components/chat/MessageBubble.jsx
 import React from "react";
-import { User, Bot, BarChart3, Clock, Zap, Target } from "lucide-react";
+import { User, Bot, BarChart3, Clock, Zap, Target, ThumbsDown, ThumbsUp } from "lucide-react";
 import { MESSAGE_TYPES } from "../../data/constants.js";
 import IconButton from "../common/IconButton.jsx";
 import LoadingSpinner from "../common/LoadingSpinner.jsx";
 
-const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing }) => {
+const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing, onFeedback }) => {
   const isUser = message.type === MESSAGE_TYPES.USER;
   const isAssistant = message.type === MESSAGE_TYPES.ASSISTANT;
 
@@ -59,6 +59,12 @@ const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing }) => {
                   <span>Category: <span className="text-green-400 font-medium capitalize">{message.category}</span></span>
                 </div>
               )}
+              {message.routingReason && (
+                <div className="text-xs text-gray-400">Route: <span className="text-gray-300">{message.routingReason}</span></div>
+              )}
+              {message.cacheHit && (
+                <div className="text-xs text-cyan-300">Reused from the recent similarity cache</div>
+              )}
             </div>
           )}
 
@@ -81,7 +87,7 @@ const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing }) => {
                 <div className="flex items-center gap-2 text-xs">
                   <Target className="w-3 h-3 text-green-400" />
                   <span className="text-gray-400">
-                    Similarity: <span className="text-green-400 font-semibold">{(message.similarity * 100).toFixed(1)}%</span>
+                    Text preservation: <span className="text-green-400 font-semibold">{(message.similarity * 100).toFixed(1)}%</span>
                   </span>
                 </div>
               )}
@@ -108,6 +114,20 @@ const MessageBubble = ({ message, onAnalyzeMessage, isAnalyzing }) => {
                 variant="analytics"
                 size="sm"
               />
+            </div>
+          )}
+
+          {isAssistant && !message.isError && message.fullApiResponse && onFeedback && (
+            <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+              <span>{message.feedback ? 'Thanks for the feedback' : 'Was this response useful?'}</span>
+              <button aria-label="Useful response" title="Useful response" disabled={Boolean(message.feedback)}
+                onClick={() => onFeedback(message, 1)} className={`rounded p-1 hover:bg-gray-700 disabled:opacity-70 ${message.feedback === 1 ? 'text-green-400' : 'text-gray-400'}`}>
+                <ThumbsUp className="w-4 h-4" />
+              </button>
+              <button aria-label="Not useful response" title="Not useful response" disabled={Boolean(message.feedback)}
+                onClick={() => onFeedback(message, -1)} className={`rounded p-1 hover:bg-gray-700 disabled:opacity-70 ${message.feedback === -1 ? 'text-red-400' : 'text-gray-400'}`}>
+                <ThumbsDown className="w-4 h-4" />
+              </button>
             </div>
           )}
         </div>
